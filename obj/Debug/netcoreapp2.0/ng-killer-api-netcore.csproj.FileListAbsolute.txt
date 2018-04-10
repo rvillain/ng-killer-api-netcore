@@ -1,0 +1,10 @@
+D:\DEV\ng-killer-api-netcore\bin\Debug\netcoreapp2.0\ng-killer-api-netcore.deps.json
+D:\DEV\ng-killer-api-netcore\bin\Debug\netcoreapp2.0\ng-killer-api-netcore.runtimeconfig.json
+D:\DEV\ng-killer-api-netcore\bin\Debug\netcoreapp2.0\ng-killer-api-netcore.runtimeconfig.dev.json
+D:\DEV\ng-killer-api-netcore\bin\Debug\netcoreapp2.0\ng-killer-api-netcore.dll
+D:\DEV\ng-killer-api-netcore\bin\Debug\netcoreapp2.0\ng-killer-api-netcore.pdb
+D:\DEV\ng-killer-api-netcore\obj\Debug\netcoreapp2.0\ng-killer-api-netcore.csproj.CoreCompileInputs.cache
+D:\DEV\ng-killer-api-netcore\obj\Debug\netcoreapp2.0\ng-killer-api-netcore.AssemblyInfoInputs.cache
+D:\DEV\ng-killer-api-netcore\obj\Debug\netcoreapp2.0\ng-killer-api-netcore.AssemblyInfo.cs
+D:\DEV\ng-killer-api-netcore\obj\Debug\netcoreapp2.0\ng-killer-api-netcore.dll
+D:\DEV\ng-killer-api-netcore\obj\Debug\netcoreapp2.0\ng-killer-api-netcore.pdb
