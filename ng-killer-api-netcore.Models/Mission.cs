@@ -1,6 +1,6 @@
 namespace NgKillerApiCore.Models
 {
-    public class Mission
+    public class Mission : IEntity<long>
     {
         public long Id { get; set; }
         public string Title { get; set; }

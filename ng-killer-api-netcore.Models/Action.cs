@@ -2,7 +2,7 @@ using System;
 
 namespace NgKillerApiCore.Models
 {
-    public class Action
+    public class Action : IEntity<long>
     {
         public long Id { get; set; }
         public string Type { get; set; }

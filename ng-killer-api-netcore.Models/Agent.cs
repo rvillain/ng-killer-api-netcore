@@ -1,6 +1,6 @@
 namespace NgKillerApiCore.Models
 {
-    public class Agent
+    public class Agent : IEntity<string>
     {
         public string Id { get; set; }
         public string Name { get; set; }

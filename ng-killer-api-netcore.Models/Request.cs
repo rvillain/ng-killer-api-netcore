@@ -2,7 +2,7 @@ using System;
 
 namespace NgKillerApiCore.Models
 {
-    public class Request
+    public class Request : IEntity<long>
     {
         public long Id { get; set; }
         public string Type { get; set; }

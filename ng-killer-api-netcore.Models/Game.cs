@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace NgKillerApiCore.Models
 {
-    public class Game
+    public class Game : IEntity<long>
     {
         public long Id { get; set; }
         public string Name { get; set; }
