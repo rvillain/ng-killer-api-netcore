@@ -13,7 +13,7 @@ namespace NgKillerApiCore.Controllers
         {
         }
 
-        protected override void WriteRange(Agent dbItem, Agent item)
+        protected override void UpdateRange(Agent dbItem, Agent item)
         {
             dbItem.Name = item.Name;
             dbItem.Photo = item.Photo;
