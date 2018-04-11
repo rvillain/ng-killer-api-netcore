@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>NgKillerApiCore.DAL</RootNamespace>
+    <AssemblyName>NgKillerApiCore.DAL</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

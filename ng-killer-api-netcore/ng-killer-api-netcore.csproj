@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>NgKillerApiCore</RootNamespace>
+    <AssemblyName>NgKillerApiCore</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

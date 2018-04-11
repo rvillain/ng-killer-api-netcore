@@ -1,4 +1,4 @@
-namespace ng_killer_api_netcore.Models
+namespace NgKillerApiCore.Models
 {
     public class Agent
     {

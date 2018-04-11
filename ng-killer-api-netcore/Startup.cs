@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,13 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using ng_killer_api_netcore.DAL;
-using ng_killer_api_netcore.Models;
+using NgKillerApiCore.DAL;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace ng_killer_api_netcore
+namespace NgKillerApiCore
 {
     public class Startup
     {

@@ -1,10 +1,7 @@
-
-
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using ng_killer_api_netcore.Models;
+using NgKillerApiCore.Models;
 
-namespace ng_killer_api_netcore.DAL
+namespace NgKillerApiCore.DAL
 {
     public class KillerContext : DbContext
     {

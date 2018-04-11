@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using ng_killer_api_netcore.Models;
 using System.Linq;
-using ng_killer_api_netcore.DAL;
+using Microsoft.AspNetCore.Mvc;
+using NgKillerApiCore.DAL;
+using NgKillerApiCore.Models;
 
-namespace TodoApi.Controllers
+namespace NgKillerApiCore.Controllers
 {
     [Route("api/[controller]")]
     public class GamesController : Controller
