@@ -23,7 +23,7 @@ namespace NgKillerApiCore.DAL
         public DbSet<Action> Actions { get; set; }
         public DbSet<Agent> Agents { get; set; }
         public DbSet<Game> Games { get; set; }
-        public DbSet<Game> Missions { get; set; }
+        public DbSet<Mission> Missions { get; set; }
         public DbSet<Request> Requests { get; set; }
 
     }
