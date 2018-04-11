@@ -16,12 +16,6 @@ namespace NgKillerApiCore.Controllers
         public AgentsController(KillerContext context)
         {
             _context = context;
-
-            if (_context.Agents.Any())
-            {
-                _context.Agents.Add(new Agent { Id="1", Name = "Villain" });
-                _context.SaveChanges();
-            }
         }
         
         [HttpGet]
@@ -71,9 +65,16 @@ namespace NgKillerApiCore.Controllers
         }
         
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(string id)
         {
-
+            var agentDb = _context.Agents.FirstOrDefault(t => t.Id == id);
+            if (agentDb == null)
+            {
+                return NotFound();
+            }
+            _context.Agents.Remove(agentDb);
+            _context.SaveChanges();
+            return new NoContentResult();
         }
     }
 }

@@ -14,12 +14,6 @@ namespace NgKillerApiCore.Controllers
         public GamesController(KillerContext context)
         {
             _context = context;
-
-            if (_context.Games.Count() == 0)
-            {
-                _context.Games.Add(new Game { Name = "G1" });
-                _context.SaveChanges();
-            }
         }
         [HttpGet]
         public IEnumerable<Game> GetAll()
