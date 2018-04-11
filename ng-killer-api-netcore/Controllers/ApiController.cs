@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.DAL;
@@ -16,6 +17,7 @@ namespace NgKillerApiCore.Controllers
     /// <typeparam name="K">Type de la clef primaire de l'entité</typeparam>
     /// <typeparam name="C">Context de la clef primaire</typeparam>
     [Route("api/[controller]")]
+    [EnableCors("AllowAll")]
     public abstract class ApiController<T, K, C> : Controller
         where T : class, IEntity<K>, new()
         where C : DbContext
@@ -46,7 +48,7 @@ namespace NgKillerApiCore.Controllers
         /// </summary>
         /// <param name="id">identifiant unique de l'entité</param>
         /// <returns>ObjectResult contenant le résultat ou NotFound si non trouvé</returns>
-        [HttpGet("{id}", Name = "GetById")]
+        [HttpGet("{id}")]
         public IActionResult GetById(K id)
         {
             T item = Context.Set<T>().Find(id);
@@ -63,17 +65,16 @@ namespace NgKillerApiCore.Controllers
         /// <param name="item"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Create([FromBody]T item)
+        public T Create([FromBody]T item)
         {
             if (item == null)
             {
-                return BadRequest();
+                throw new Exception();
             }
 
             Context.Add(item);
             Context.SaveChanges();
-
-            return CreatedAtRoute("GetById", new { id = item.Id }, item);
+            return item;
         }
 
         /// <summary>
