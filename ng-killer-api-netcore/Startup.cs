@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ng_killer_api_netcore.DAL;
 using ng_killer_api_netcore.Models;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace ng_killer_api_netcore
 {
@@ -30,11 +33,22 @@ namespace ng_killer_api_netcore
         {
             services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
             services.AddMvc();
-            services.AddCors();
+
+            //Add Cors support to the service
+            var corsBuilder = new CorsPolicyBuilder();
+            corsBuilder.AllowAnyHeader();
+            corsBuilder.AllowAnyMethod();
+            corsBuilder.AllowAnyOrigin();
+            corsBuilder.AllowCredentials();
+
             services.AddCors(options =>
             {
-                options.AddPolicy("dev",
-                    policy => policy.WithOrigins("http://localhost:4200"));
+                options.AddPolicy("AllowAll", corsBuilder.Build());
+            });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "KillerAPI", Version = "v1" });
             });
         }
 
@@ -47,9 +61,7 @@ namespace ng_killer_api_netcore
             }
 
             app.UseMvc(); 
-            app.UseCors(
-                "dev"//options => options.WithOrigins("http://localhost:4200").AllowAnyMethod()
-            );
+
             app.UseWebSockets();
             app.UseOptions();
             app.Use(async (context, next) =>
@@ -72,6 +84,14 @@ namespace ng_killer_api_netcore
                     }
 
                 });
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.RoutePrefix = "swagger";
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "KillerAPI V1");
+            });
         }
         private async Task Echo(HttpContext context, WebSocket webSocket)  
         {  

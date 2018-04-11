@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ng_killer_api_netcore.Models
 {
-    public class Event
+    public class Request
     {
         public long Id { get; set; }
         public string Type { get; set; }
