@@ -18,11 +18,10 @@ namespace NgKillerApiCore.Controllers
             }
         }
 
-        protected override void WriteRange(Mission dbItem, Mission item)
+        protected override void UpdateRange(Mission dbItem, Mission item)
         {
             dbItem.Title = item.Title;
             dbItem.Difficulty = item.Difficulty;
-            dbItem.Agent = null; // le controlleur de mission ne peux mettre a jour / créer l'agent
         }
     }
 }
