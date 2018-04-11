@@ -22,7 +22,6 @@ namespace NgKillerApiCore.Controllers
         {
             dbItem.Title = item.Title;
             dbItem.Difficulty = item.Difficulty;
-            dbItem.Agent = null; // le controlleur de mission ne peux mettre a jour / créer l'agent
         }
     }
 }

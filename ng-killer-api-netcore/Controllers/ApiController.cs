@@ -70,8 +70,6 @@ namespace NgKillerApiCore.Controllers
                 return BadRequest();
             }
 
-            WriteRange(new T(), item);
-
             Context.Add(item);
             Context.SaveChanges();
 
@@ -98,7 +96,7 @@ namespace NgKillerApiCore.Controllers
                 return NotFound();
             }
 
-            WriteRange(dbItem, item);
+            UpdateRange(dbItem, item);
 
             Context.Set<T>().Update(dbItem);
             Context.SaveChanges();
@@ -110,8 +108,8 @@ namespace NgKillerApiCore.Controllers
         /// Ex: dbItem.Name = bodyItem.Name
         /// </summary>
         /// <param name="dbItem">Item qui sera utilisé</param>
-        /// <param name="item">Item provenant d'un post / put</param>
-        protected abstract void WriteRange(T dbItem, T item);
+        /// <param name="item">Item provenant d'un post / put (sera </param>
+        protected abstract void UpdateRange(T dbItem, T item);
 
         //protected abstract void Updating(T DbItem, )
 
