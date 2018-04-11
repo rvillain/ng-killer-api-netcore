@@ -6,8 +6,11 @@ namespace NgKillerApiCore.Models
     {
         public long Id { get; set; }
         public string Type { get; set; }
+        public DateTime DateCreation{ get; set; }
+
         public Agent Killer { get; set; }
         public Agent Target { get; set; }
-        public DateTime DateCreation{ get; set; }
+        public Game Game { get; set; }
+        public Mission Mission { get; set; }
     }
 }

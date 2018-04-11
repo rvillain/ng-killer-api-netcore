@@ -28,6 +28,7 @@ namespace NgKillerApiCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
+            //services.AddScoped<KillerContext>();
             services.AddMvc();
 
             //Add Cors support to the service

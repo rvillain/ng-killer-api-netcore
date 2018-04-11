@@ -18,6 +18,14 @@ namespace NgKillerApiCore.DAL
             //optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Killer;Integrated Security=True");
             //optionsBuilder.UseSqlServer("Data Source=MOONSERV;Initial Catalog=Killer;User ID=sa;Password=Quantipro69");
             optionsBuilder.UseSqlServer("Data Source=DISCOVERY;Initial Catalog=Killer;User ID=sa;Password=Quantipro69");
+
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //modelBuilder.Entity<Game>().HasMany(_ => _.Agents).WithOne(_ => _.Game);
+            //modelBuilder.Entity<Game>().HasMany(_ => _.Missions).WithOne(_ => _.Game);
+            //modelBuilder.Entity<Game>().HasMany(_ => _.Actions).WithOne(_ => _.Game);
         }
 
         public DbSet<Action> Actions { get; set; }

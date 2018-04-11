@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
 
@@ -11,13 +12,16 @@ namespace NgKillerApiCore.Controllers
     {
         public AgentsController(KillerContext context) : base(context)
         {
-        }
+            if (!context.Agents.Any())
+            {
+                context.Agents.Add(new Agent {Id = "666", Name = "Un petit agent", Status = "Drunk", GameId = 999});
+                context.Games.Add(new Game { Id = 999, Name = "la petite game" });
+                //context.Missions.Add(new Mission { Id = 333, Title = "la petite mission" });
+                context.SaveChanges();
+            }
 
-        protected override void UpdateRange(Agent dbItem, Agent item)
-        {
-            dbItem.Name = item.Name;
-            dbItem.Photo = item.Photo;
-            dbItem.Status = item.Status;
+            Includes.Add(a => a.Game);
+            //Includes.Add(a => a.Mission);
         }
     }
 }
