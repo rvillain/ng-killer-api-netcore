@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/ng-killer-api-netcore.csproj"
+                "${workspaceFolder}/ng-killer-api-netcore/ng-killer-api-netcore.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

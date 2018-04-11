@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -56,9 +57,9 @@ namespace NgKillerApiCore
             }
 
             app.UseMvc(); 
+            app.UseCors("AllowAll");
 
             app.UseWebSockets();
-            app.UseOptions();
             app.Use(async (context, next) =>
                 {
                     if (context.Request.Path == "/ws")
@@ -99,45 +100,6 @@ namespace NgKillerApiCore
             }  
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);  
         }  
-    }
-
-    public class OptionsMiddleware
-    {
-        private readonly RequestDelegate _next;
-        private IHostingEnvironment _environment;
-
-        public OptionsMiddleware(RequestDelegate next, IHostingEnvironment environment)
-        {
-            _next = next;
-            _environment = environment;
-        }
-
-        public async Task Invoke(HttpContext context)
-        {
-            this.BeginInvoke(context);
-            await this._next.Invoke(context);
-        }
-
-        private async void BeginInvoke(HttpContext context)
-        {
-            context.Response.Headers.Add("Access-Control-Allow-Origin", new[] { (string)context.Request.Headers["Origin"] });
-            context.Response.Headers.Add("Access-Control-Allow-Headers", new[] { "Origin, X-Requested-With, Content-Type, Accept" });
-            context.Response.Headers.Add("Access-Control-Allow-Methods", new[] { "GET, POST, PUT, DELETE, OPTIONS" });
-            context.Response.Headers.Add("Access-Control-Allow-Credentials", new[] { "true" });
-            if (context.Request.Method == "OPTIONS")
-            {
-                context.Response.StatusCode = 200;
-                await context.Response.WriteAsync("OK");
-            }
-        }
-    }
-
-    public static class OptionsMiddlewareExtensions
-    {
-        public static IApplicationBuilder UseOptions(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<OptionsMiddleware>();
-        }
     }
     
 }
