@@ -15,12 +15,10 @@ namespace NgKillerApiCore
     public class MessageHandler : WebSocketHandler
     {
         private SocketManager _socketManager;
-        private KillerContext _killerContext;
 
-        public MessageHandler(WebSocketConnectionManager webSocketConnectionManager, SocketManager socketManager, KillerContext killerContext) : base(webSocketConnectionManager)
+        public MessageHandler(WebSocketConnectionManager webSocketConnectionManager, SocketManager socketManager) : base(webSocketConnectionManager)
         {
             _socketManager = socketManager;
-            _killerContext = killerContext;
         }
         public override async Task OnConnected(WebSocket socket)
         {
@@ -37,40 +35,38 @@ namespace NgKillerApiCore
             await SendMessageToAllAsync(message);
         }
 
-        //public override async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, string json)
-        //{
-        //    try
-        //    {
+        public override async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, string json)
+        {
+            try
+            {
 
-        //        var request = JsonConvert.DeserializeObject<Request>(json);
+                var request = JsonConvert.DeserializeObject<Request>(json);
 
-        //        if (request != null)
-        //        {
-        //            switch (request.Type)
-        //            {
-        //                case Constantes.REQUEST_TYPE_JOIN_ROOM:
-        //                    break;
-        //                default:
-        //                    _killerContext.Requests.Add(request);
-        //                    _killerContext.SaveChanges();
-        //                    break;
+                if (request != null)
+                {
+                    switch (request.Type)
+                    {
+                        case Constantes.REQUEST_TYPE_JOIN_ROOM:
+                            break;
+                        default:
+                            break;
 
-        //            }
+                    }
 
-        //            var message = new Message()
-        //            {
-        //                MessageType = MessageType.Text,
-        //                Data = json
-        //            };
+                    var message = new Message()
+                    {
+                        MessageType = MessageType.Text,
+                        Data = json
+                    };
 
-        //            await SendMessageToAllAsync(message);
-        //        }
-        //    }
-        //    catch(Exception ex)
-        //    {
+                    await SendMessageToAllAsync(message);
+                }
+            }
+            catch (Exception ex)
+            {
 
-        //    }
-        //}
+            }
+        }
 
         public override async Task OnDisconnected(WebSocket socket)
         {

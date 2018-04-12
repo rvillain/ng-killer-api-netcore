@@ -50,7 +50,7 @@ namespace WebSocketManager
                                                                   count: encodedMessage.Length),
                                    messageType: WebSocketMessageType.Text,
                                    endOfMessage: true,
-                                   cancellationToken: CancellationToken.None).ConfigureAwait(false);
+                                   cancellationToken: CancellationToken.None).ConfigureAwait(true);
         }
 
         public virtual async Task SendMessageAsync(string socketId, Message message)
@@ -62,8 +62,15 @@ namespace WebSocketManager
         {
             foreach (var pair in WebSocketConnectionManager.GetAll())
             {
-                if (pair.Value.State == WebSocketState.Open)
-                    await SendMessageAsync(pair.Value, message).ConfigureAwait(false);
+                try
+                {
+                    if (pair.Value.State == WebSocketState.Open)
+                        await SendMessageAsync(pair.Value, message).ConfigureAwait(false);
+                }
+                catch(Exception ex)
+                {
+
+                }
             }
         }
 

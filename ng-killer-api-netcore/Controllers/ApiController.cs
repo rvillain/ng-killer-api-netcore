@@ -65,7 +65,7 @@ namespace NgKillerApiCore.Controllers
         /// <param name="item"></param>
         /// <returns></returns>
         [HttpPost]
-        public T Create([FromBody]T item)
+        public virtual T Create([FromBody]T item)
         {
             if (item == null)
             {

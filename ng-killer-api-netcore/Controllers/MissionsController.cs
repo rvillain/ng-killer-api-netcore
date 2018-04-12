@@ -24,7 +24,7 @@ namespace NgKillerApiCore.Controllers
             dbItem.Difficulty = item.Difficulty;
         }
 
-        [HttpPost("/generics")]
+        [HttpPost("generics")]
         public ICollection<Mission> GetGenerics()
         {
             var missions = Context.Missions.Where(m=>m.GameId == null);

@@ -31,7 +31,7 @@ namespace NgKillerApiCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"), ServiceLifetime.Singleton);
+            services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
             services.AddSingleton(typeof(SocketManager));
             services.AddMvc().AddJsonOptions(options =>
             {
