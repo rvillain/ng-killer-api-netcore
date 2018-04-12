@@ -9,9 +9,10 @@ namespace NgKillerApiCore.Models
         public long Id { get; set; }
         public string Title { get; set; }
         public string Difficulty { get; set; }
-        public string AgentId { get; set; }
+        public long? GameId { get; set; }
 
-        [ForeignKey(nameof(AgentId))]
-        public Agent Agent { get; set; }
+        [ForeignKey(nameof(GameId))]
+        public Game Game { get; set; }
+        public bool IsUsed { get; set; }
     }
 }

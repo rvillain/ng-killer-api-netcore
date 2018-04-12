@@ -12,6 +12,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NgKillerApiCore.DAL;
 using Swashbuckle.AspNetCore.Swagger;
+using Newtonsoft.Json;
+using NgKillerApiCore.Models;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using WebSocketManager;
 
 namespace NgKillerApiCore
 {
@@ -28,7 +32,14 @@ namespace NgKillerApiCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
-            services.AddMvc();
+            services.TryAdd(ServiceDescriptor.Scoped(typeof(SocketManager), typeof(SocketManager)));
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling =
+                                           Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                //Préserver la capitalisation des noms de variable lors de la sérialisation
+                //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+            }); ;
 
             //Add Cors support to the service
             var corsBuilder = new CorsPolicyBuilder();
@@ -46,10 +57,14 @@ namespace NgKillerApiCore
             {
                 c.SwaggerDoc("v1", new Info { Title = "KillerAPI", Version = "v1" });
             });
+
+
+            services.AddWebSocketManager();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
+            IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -60,26 +75,36 @@ namespace NgKillerApiCore
             app.UseCors("AllowAll");
 
             app.UseWebSockets();
-            app.Use(async (context, next) =>
-                {
-                    if (context.Request.Path == "/ws")
-                    {
-                        if (context.WebSockets.IsWebSocketRequest)
-                        {
-                            WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                            await Echo(context, webSocket);
-                        }
-                        else
-                        {
-                            context.Response.StatusCode = 400;
-                        }
-                    }
-                    else
-                    {
-                        await next();
-                    }
+            //app.Use(async (context, next) =>
+            //    {
+            //        if (context.Request.Path == "/ws")
+            //        {
+            //            if (context.WebSockets.IsWebSocketRequest)
+            //            {
+            //                try
+            //                {
+            //                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            //                    SocketManager service = serviceProvider.GetService<SocketManager>();
+            //                    await service.ManageSocket(context, webSocket);
+            //                }
+            //                catch(Exception ex)
+            //                {
 
-                });
+            //                }
+            //            }
+            //            else
+            //            {
+            //                context.Response.StatusCode = 400;
+            //            }
+            //        }
+            //        else
+            //        {
+            //            await next();
+            //        }
+
+            //    });
+
+            app.MapWebSocketManager("/ws", serviceProvider.GetService<MessageHandler>());
 
             app.UseSwagger();
 
@@ -88,18 +113,7 @@ namespace NgKillerApiCore
                 c.RoutePrefix = "swagger";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "KillerAPI V1");
             });
-        }
-        private async Task Echo(HttpContext context, WebSocket webSocket)  
-        {  
-            var buffer = new byte[1024 * 4];  
-            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);  
-            while (!result.CloseStatus.HasValue)  
-            {  
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);  
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);  
-            }  
-            await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);  
-        }  
+        } 
     }
     
 }

@@ -49,7 +49,7 @@ namespace NgKillerApiCore.Controllers
         /// <param name="id">identifiant unique de l'entité</param>
         /// <returns>ObjectResult contenant le résultat ou NotFound si non trouvé</returns>
         [HttpGet("{id}")]
-        public IActionResult GetById(K id)
+        public virtual IActionResult GetById(K id)
         {
             T item = Context.Set<T>().Find(id);
             if (item == null)
