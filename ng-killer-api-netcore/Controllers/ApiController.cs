@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -40,13 +41,21 @@ namespace NgKillerApiCore.Controllers
         }
 
         /// <summary>
+        /// Inclusions relationnelles supplémentaires
+        /// </summary>
+        protected List<Expression<Func<T, object>>> Includes { get; } = new List<Expression<Func<T, object>>>();
+
+        /// <summary>
         /// Récupère tous les élements 
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public IEnumerable<T> GetAll()
         {
-            return Context.Set<T>().ToList();
+            var query = Context.Set<T>().AsQueryable();
+            //Includes.Aggregate(query, (dbSet, inc) => dbSet.Include(inc));
+            var result = query.ToList();
+            return result;
         }
 
         /// <summary>
@@ -57,7 +66,7 @@ namespace NgKillerApiCore.Controllers
         [HttpGet("{id}")]
         public virtual IActionResult GetById(K id)
         {
-            T item = Context.Set<T>().Find(id);
+            T item = Context.Set<T>().AsNoTracking().SingleOrDefault(i => i.Id.Equals(id));
             if (item == null)
             {
                 return NotFound();
@@ -97,26 +106,11 @@ namespace NgKillerApiCore.Controllers
                 return BadRequest();
             }
 
-            var dbItem = Context.Set<T>().Find(id);
-            if (dbItem == null)
-            {
-                return NotFound();
-            }
-
-            UpdateRange(dbItem, item);
-
-            Context.Set<T>().Update(dbItem);
+            Context.Set<T>().Attach(item);
+            Context.Entry(item).State = EntityState.Modified;
             Context.SaveChanges();
             return new NoContentResult();
         }
-
-        /// <summary>
-        /// Mappage des propriété a mettre a jour lors d'un update ou create
-        /// Ex: dbItem.Name = bodyItem.Name
-        /// </summary>
-        /// <param name="dbItem">Item qui sera utilisé</param>
-        /// <param name="item">Item provenant d'un post / put (sera </param>
-        protected abstract void UpdateRange(T dbItem, T item);
 
         //protected abstract void Updating(T DbItem, )
 

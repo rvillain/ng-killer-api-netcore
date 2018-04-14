@@ -9,6 +9,7 @@ namespace NgKillerApiCore.Models
         public string Type { get; set; }
         public DateTime DateCreation{ get; set; }
 
+
         public long GameId { get; set; }
         public string KillerId { get; set; }
         public string TargetId { get; set; }
@@ -20,6 +21,7 @@ namespace NgKillerApiCore.Models
         public Agent Killer { get; set; }
         [ForeignKey(nameof(TargetId))]
         public Agent Target { get; set; }
+
         [ForeignKey(nameof(MissionId))]
         public Mission Mission { get; set; }
     }

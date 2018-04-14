@@ -8,6 +8,7 @@ namespace NgKillerApiCore.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string Photo { get; set; }
+
         public long? MissionId { get; set; }
         public string TargetId { get; set; }
         public long GameId { get; set; }

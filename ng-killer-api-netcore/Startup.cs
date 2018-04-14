@@ -32,6 +32,7 @@ namespace NgKillerApiCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
+
             services.AddSignalR();
             services.AddMvc().AddJsonOptions(options =>
             {
@@ -40,7 +41,6 @@ namespace NgKillerApiCore
                 //Préserver la capitalisation des noms de variable lors de la sérialisation
                 //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
-            //services.Addsi
 
             //Add Cors support to the service
             var corsBuilder = new CorsPolicyBuilder();

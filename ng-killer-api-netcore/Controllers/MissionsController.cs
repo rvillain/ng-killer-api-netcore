@@ -19,7 +19,6 @@ namespace NgKillerApiCore.Controllers
             //    context.SaveChanges();
             //}
         }
-
         protected override void UpdateRange(Mission dbItem, Mission item)
         {
             dbItem.Title = item.Title;
