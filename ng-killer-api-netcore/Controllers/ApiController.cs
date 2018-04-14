@@ -8,9 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
+using Microsoft.AspNetCore.SignalR;
+using NgKillerApiCore.Hubs;
 
 namespace NgKillerApiCore.Controllers
 {
+
     /// <summary>
     /// Controlleur générique API CRUD
     /// </summary>
@@ -19,19 +22,22 @@ namespace NgKillerApiCore.Controllers
     /// <typeparam name="C">Context de la clef primaire</typeparam>
     [Route("api/[controller]")]
     [EnableCors("AllowAll")]
-    public abstract class ApiController<T, K, C> : Controller
+    public abstract class ApiController<T, K, C, H> : Controller
         where T : class, IEntity<K>, new()
         where C : DbContext
+        where H : Hub
     {
         protected C Context { get; }
+        protected IHubContext<H> _hubContext { get; set; }
 
         /// <summary>
         /// Création du controlleur avec son contexte
         /// </summary>
         /// <param name="context">contexte de donnée</param>
-        protected ApiController(C context)
+        protected ApiController(C context, IHubContext<H> hubContext)
         {
             Context = context;
+            this._hubContext = hubContext;
         }
 
         /// <summary>
@@ -58,7 +64,7 @@ namespace NgKillerApiCore.Controllers
         /// <param name="id">identifiant unique de l'entité</param>
         /// <returns>ObjectResult contenant le résultat ou NotFound si non trouvé</returns>
         [HttpGet("{id}")]
-        public IActionResult GetById(K id)
+        public virtual IActionResult GetById(K id)
         {
             T item = Context.Set<T>().AsNoTracking().SingleOrDefault(i => i.Id.Equals(id));
             if (item == null)
@@ -74,7 +80,7 @@ namespace NgKillerApiCore.Controllers
         /// <param name="item"></param>
         /// <returns></returns>
         [HttpPost]
-        public T Create([FromBody]T item)
+        public virtual T Create([FromBody]T item)
         {
             if (item == null)
             {
@@ -124,6 +130,11 @@ namespace NgKillerApiCore.Controllers
             Context.Remove(todo);
             Context.SaveChanges();
             return new NoContentResult();
+        }
+
+        protected void SendToAll(string room, string method, object data)
+        {
+            this._hubContext.Clients.Group(room).SendAsync(method, data);
         }
     }
 }

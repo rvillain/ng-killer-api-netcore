@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ng-killer-api-netcore", "ng-killer-api-netcore\ng-killer-api-netcore.csproj", "{C147AB24-87D8-4A39-92BD-D617EF495EE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "0 - ng-killer-api-netcore.Models", "ng-killer-api-netcore.Models\0 - ng-killer-api-netcore.Models.csproj", "{5932928A-6F97-4AEB-A549-06C599C62965}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "0 - ng-killer-api-netcore.Models", "ng-killer-api-netcore.Models\0 - ng-killer-api-netcore.Models.csproj", "{5932928A-6F97-4AEB-A549-06C599C62965}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1 - ng-killer-api-netcore.DAL", "ng-killer-api-netcore.DAL\1 - ng-killer-api-netcore.DAL.csproj", "{84C22B0E-4B7A-476C-B185-EF38BF51CB45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "1 - ng-killer-api-netcore.DAL", "ng-killer-api-netcore.DAL\1 - ng-killer-api-netcore.DAL.csproj", "{84C22B0E-4B7A-476C-B185-EF38BF51CB45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

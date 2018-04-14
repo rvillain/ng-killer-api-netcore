@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.Models;
 
@@ -28,11 +29,15 @@ namespace NgKillerApiCore.DAL
             //modelBuilder.Entity<Game>().HasMany(_ => _.Actions).WithOne(_ => _.Game);
         }
 
-        public DbSet<Action> Actions { get; set; }
+        public DbSet<Models.Action> Actions { get; set; }
         public DbSet<Agent> Agents { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Mission> Missions { get; set; }
         public DbSet<Request> Requests { get; set; }
 
+        public void SaveChanges(Request req)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
