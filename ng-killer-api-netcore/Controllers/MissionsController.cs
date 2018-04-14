@@ -3,13 +3,15 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
+using Microsoft.AspNetCore.SignalR;
+using NgKillerApiCore.Hubs;
 
 namespace NgKillerApiCore.Controllers
 {
 
-    public class MissionsController : ApiController<Mission, long, KillerContext>
+    public class MissionsController : ApiController<Mission, long, KillerContext, RequestHub>
     {
-        public MissionsController(KillerContext context) : base(context)
+        public MissionsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
             //if (!context.Missions.Any())
             //{

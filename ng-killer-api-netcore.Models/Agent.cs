@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NgKillerApiCore.Models
@@ -22,5 +23,9 @@ namespace NgKillerApiCore.Models
 
         [ForeignKey(nameof(GameId))]
         public Game Game { get; set; }
+
+
+        [InverseProperty("Receiver")]
+        public ICollection<Request> Requests { get; set; }
     }
 }

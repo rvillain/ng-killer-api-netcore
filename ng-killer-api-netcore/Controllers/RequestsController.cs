@@ -8,21 +8,21 @@ using System;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
+using NgKillerApiCore.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace NgKillerApiCore.Controllers
 {
     [Route("api/[controller]")]
-    public class RequestsController : ApiController<Request, long, KillerContext>
+    public class RequestsController : ApiController<Request, long, KillerContext, RequestHub>
     {
-        protected MessageHandler _messageHandler { get; set; }
-        public RequestsController(KillerContext context, MessageHandler messageHandler) : base(context)
+        public RequestsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
-            this._messageHandler = messageHandler;
         }
 
         [HttpPost("push")]
         [EnableCors("AllowAll")]
-        public async Task<Request> Push([FromBody]Request req)
+        public Request Push([FromBody]Request req)
         {
             if (req == null)
             {
@@ -37,29 +37,25 @@ namespace NgKillerApiCore.Controllers
                 switch (req.Type)
                 {
                     case Constantes.REQUEST_TYPE_CHANGE_MISSION:
-                        this.ChangeMission(req.Emitter.Id);
+                        this.ChangeMission(req.EmitterId);
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_KILL:
-                        this.Kill(req.Emitter);
+                        this.Kill(req.EmitterId);
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_UNMASK:
-                        this.Unmask(req.Emitter);
+                        this.Unmask(req.EmitterId);
                         break;
                     case Constantes.REQUEST_TYPE_SUICIDE:
-                        this.Suicide(req.Emitter);
+                        this.Suicide(req.EmitterId);
                         break;
                     case Constantes.REQUEST_TYPE_ASK_UNMASK:
-                        this.AskUnmask(req.Emitter.Id, req.Receiver.Name);
+                        this.AskUnmask(req.EmitterId, req.ReceiverId);
                         break;
                 }
 
 
                 Context.SaveChanges();
-                await this._messageHandler.SendMessageToAllAsync(new WebSocketManager.Common.Message
-                {
-                    Data = JsonConvert.SerializeObject(req),
-                    MessageType = WebSocketManager.Common.MessageType.Text
-                });
+                this.SendToAll(req.GameId.ToString(), "Request", req);
             }
             catch(Exception ex)
             {
@@ -112,17 +108,17 @@ namespace NgKillerApiCore.Controllers
                 this.Context.Update(agentToUpdate);
             }
         }
-        private void Suicide(Agent agent)
+        private void Suicide(string agentId)
         {
-            var agentToUpdate = this.Context.Agents.First(a => a.Id == agent.Id);
+            var agentToUpdate = this.Context.Agents.First(a => a.Id == agentId);
             agentToUpdate.Life = 0;
             agentToUpdate.Status = "dead";
-            var killer = this.Context.Agents.First(a => a.TargetId == agent.Id);
+            var killer = this.Context.Agents.First(a => a.TargetId == agentId);
             killer.TargetId = agentToUpdate.TargetId;
             Models.Action action = new Models.Action
             {
-                GameId = agent.GameId,
-                KillerId = agent.Id,
+                GameId = agentToUpdate.GameId,
+                KillerId = agentToUpdate.Id,
                 Type = Constantes.ACTTION_TYPE_SUICIDE
             };
             this.Context.Actions.Add(action);
@@ -130,11 +126,11 @@ namespace NgKillerApiCore.Controllers
             this.Context.SaveChanges();
         }
 
-        private void Kill(Agent victim)
+        private void Kill(string victimId)
         {
-            var killerToUpdate = this.Context.Agents.First(a => a.TargetId == victim.Id);
+            var killerToUpdate = this.Context.Agents.First(a => a.TargetId == victimId);
             var mission = killerToUpdate.Mission;
-            var victimToUpdate = this.Context.Agents.First(a => a.Id == victim.Id);
+            var victimToUpdate = this.Context.Agents.First(a => a.Id == victimId);
             var newTarget = this.Context.Agents.First(a => a.Id == victimToUpdate.Id);
 
             killerToUpdate.MissionId = victimToUpdate.MissionId;
@@ -160,13 +156,13 @@ namespace NgKillerApiCore.Controllers
             this.Context.Actions.Add(action);
         }
 
-        private void Unmask(Agent victim)
+        private void Unmask(string victimId)
         {
             // Killer => Victim => Target
             //Target unmask victim
-            var victimToUpdate = this.Context.Agents.First(a => a.Id == victim.Id);
-            var target = this.Context.Agents.First(a => a.Id == victim.TargetId);
-            var killer = this.Context.Agents.First(a => a.TargetId == victim.Id);
+            var victimToUpdate = this.Context.Agents.First(a => a.Id == victimId);
+            var target = this.Context.Agents.First(a => a.Id == victimToUpdate.TargetId);
+            var killer = this.Context.Agents.First(a => a.TargetId == victimId);
 
             killer.TargetId = target.Id;
             if (target.Life < 5)
@@ -189,15 +185,13 @@ namespace NgKillerApiCore.Controllers
             this.Context.Actions.Add(action);
         }
 
-        private void WrongKiller(Agent agent)
+        private void WrongKiller(Agent agentToUpdate)
         {
-            //socket.emit("wrong-killer", agent);
-            var agentToUpdate = this.Context.Agents.First(a => a.Id == agent.Id);
             agentToUpdate.Life--;
-            if (agent.Life <= 0)
+            if (agentToUpdate.Life <= 0)
             {
-                agent.Status = "dead";
-                var killer = this.Context.Agents.First(a => a.TargetId == agent.Id);
+                agentToUpdate.Status = "dead";
+                var killer = this.Context.Agents.First(a => a.TargetId == agentToUpdate.Id);
                 killer.TargetId = agentToUpdate.TargetId;
                 agentToUpdate.TargetId = null;
                 agentToUpdate.MissionId = null;

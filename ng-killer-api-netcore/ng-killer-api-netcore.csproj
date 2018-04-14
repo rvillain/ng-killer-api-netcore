@@ -8,7 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-preview2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.1.0-preview2-final" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
   </ItemGroup>
 
@@ -18,8 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ng-killer-api-netcore.DAL\1 - ng-killer-api-netcore.DAL.csproj" />
-    <ProjectReference Include="..\WebSocketManager.Common\WebSocketManager.Common.csproj" />
-    <ProjectReference Include="..\WebSocketManager\WebSocketManager.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,17 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ng-killer-api-netcore", "ng-killer-api-netcore\ng-killer-api-netcore.csproj", "{C147AB24-87D8-4A39-92BD-D617EF495EE2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "0 - ng-killer-api-netcore.Models", "ng-killer-api-netcore.Models\0 - ng-killer-api-netcore.Models.csproj", "{5932928A-6F97-4AEB-A549-06C599C62965}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "1 - ng-killer-api-netcore.DAL", "ng-killer-api-netcore.DAL\1 - ng-killer-api-netcore.DAL.csproj", "{84C22B0E-4B7A-476C-B185-EF38BF51CB45}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocketManager.Common", "WebSocketManager.Common\WebSocketManager.Common.csproj", "{F3F73109-8FFB-4949-85B5-C5DDB1ACC8C7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocketManager", "WebSocketManager\WebSocketManager.csproj", "{A6DCD19B-E328-43D8-BA1F-514531CD2BF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +27,6 @@ Global
 		{84C22B0E-4B7A-476C-B185-EF38BF51CB45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84C22B0E-4B7A-476C-B185-EF38BF51CB45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84C22B0E-4B7A-476C-B185-EF38BF51CB45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F3F73109-8FFB-4949-85B5-C5DDB1ACC8C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3F73109-8FFB-4949-85B5-C5DDB1ACC8C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3F73109-8FFB-4949-85B5-C5DDB1ACC8C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3F73109-8FFB-4949-85B5-C5DDB1ACC8C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6DCD19B-E328-43D8-BA1F-514531CD2BF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6DCD19B-E328-43D8-BA1F-514531CD2BF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6DCD19B-E328-43D8-BA1F-514531CD2BF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6DCD19B-E328-43D8-BA1F-514531CD2BF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

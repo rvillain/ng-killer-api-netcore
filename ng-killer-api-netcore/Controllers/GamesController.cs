@@ -5,16 +5,16 @@ using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using NgKillerApiCore.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace NgKillerApiCore.Controllers
 {
     [Route("api/[controller]")]
-    public class GamesController : ApiController<Game, long, KillerContext>
+    public class GamesController : ApiController<Game, long, KillerContext, RequestHub>
     {
-        protected MessageHandler _messageHandler { get; set; }
-        public GamesController(KillerContext context, MessageHandler messageHandler) : base(context)
+        public GamesController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
-            this._messageHandler = messageHandler;
         }
 
         protected override void UpdateRange(Game dbItem, Game item)
@@ -84,7 +84,10 @@ namespace NgKillerApiCore.Controllers
             Context.Actions.Add(action);
 
             Context.SaveChanges();
-            this._messageHandler.InvokeClientMethodToAllAsync(Constantes.ACTTION_TYPE_GAME_STARTED, game);
+            this.SendToAll(game.Id.ToString(),"Request", new Request
+            {
+                Type = Constantes.REQUEST_TYPE_GAME_STATUS
+            });
             return game;
         }
         [HttpPost("{id}/reinit")]

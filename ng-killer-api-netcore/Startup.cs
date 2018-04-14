@@ -15,7 +15,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Newtonsoft.Json;
 using NgKillerApiCore.Models;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using WebSocketManager;
+using NgKillerApiCore.Hubs;
 
 namespace NgKillerApiCore
 {
@@ -32,14 +32,15 @@ namespace NgKillerApiCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
-            services.AddSingleton(typeof(SocketManager));
+            services.AddSignalR();
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling =
                                            Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 //Préserver la capitalisation des noms de variable lors de la sérialisation
                 //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-            }); ;
+            });
+            //services.Addsi
 
             //Add Cors support to the service
             var corsBuilder = new CorsPolicyBuilder();
@@ -57,9 +58,6 @@ namespace NgKillerApiCore
             {
                 c.SwaggerDoc("v1", new Info { Title = "KillerAPI", Version = "v1" });
             });
-
-
-            services.AddWebSocketManager();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,38 +71,11 @@ namespace NgKillerApiCore
 
             app.UseMvc(); 
             app.UseCors("AllowAll");
-
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<RequestHub>("/requesthub");
+            });
             app.UseWebSockets();
-            //app.Use(async (context, next) =>
-            //    {
-            //        if (context.Request.Path == "/ws")
-            //        {
-            //            if (context.WebSockets.IsWebSocketRequest)
-            //            {
-            //                try
-            //                {
-            //                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-            //                    SocketManager service = serviceProvider.GetService<SocketManager>();
-            //                    await service.ManageSocket(context, webSocket);
-            //                }
-            //                catch(Exception ex)
-            //                {
-
-            //                }
-            //            }
-            //            else
-            //            {
-            //                context.Response.StatusCode = 400;
-            //            }
-            //        }
-            //        else
-            //        {
-            //            await next();
-            //        }
-
-            //    });
-
-            app.MapWebSocketManager("/ws", serviceProvider.GetService<MessageHandler>());
 
             app.UseSwagger();
 
