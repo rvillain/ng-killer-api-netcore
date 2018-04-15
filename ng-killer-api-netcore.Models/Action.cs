@@ -5,6 +5,9 @@ namespace NgKillerApiCore.Models
 {
     public class Action : IEntity<long>
     {
+        public Action(){
+            DateCreation = DateTime.Now;
+        }
         public long Id { get; set; }
         public string Type { get; set; }
         public DateTime DateCreation{ get; set; }

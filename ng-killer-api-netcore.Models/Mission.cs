@@ -1,4 +1,6 @@
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace NgKillerApiCore.Models
 {
     public class Mission : IEntity<long>

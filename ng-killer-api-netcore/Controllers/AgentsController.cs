@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
-using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using System.Transactions;
 
 namespace NgKillerApiCore.Controllers
 {
@@ -15,18 +15,25 @@ namespace NgKillerApiCore.Controllers
     {
         public AgentsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
-            if (!context.Agents.Any())
-            {
-                context.Agents.Add(new Agent {Id = "666", Name = "Un petit agent", Status = "Drunk", GameId = 999});
-                context.Games.Add(new Game { Id = 999, Name = "la petite game" });
-                //context.Missions.Add(new Mission { Id = 333, Title = "la petite mission" });
-                context.SaveChanges();
-            }
-
             Includes.Add(a => a.Game);
             //Includes.Add(a => a.Mission);
         }
 
+        public override Agent Create([FromBody]Agent item)
+        {
+            using (var transaction = new TransactionScope())
+            {
+                var agent = base.Create(item);
+                SendToAll(item.GameId.ToString(), "Request", new Request{
+                    GameId = agent.GameId,
+                    EmitterId = agent.Id,
+                    Emitter = agent,
+                    Type = Constantes.REQUEST_TYPE_NEW_AGENT
+                });
+                transaction.Complete();
+                return agent;
+            }
+        }
         public override IActionResult GetById(string id)
         {
             Agent item = Context.Agents
@@ -34,7 +41,7 @@ namespace NgKillerApiCore.Controllers
                 .Include(a => a.Mission)
                 .Include(a => a.Target)
                 .Include(a => a.Requests)
-                .First(g => g.Id == id);
+                .FirstOrDefault(a => a.Id.Equals(id));
             if (item == null)
             {
                 return NotFound();
@@ -44,7 +51,7 @@ namespace NgKillerApiCore.Controllers
             return new ObjectResult(item);
         }
 
-        [HttpPost("{id}/getForUnmask")]
+        [HttpGet("{id}/getForUnmask")]
         public ICollection<Agent> GetForUnmask(string id)
         {
             var agent = Context.Agents.Find(id);

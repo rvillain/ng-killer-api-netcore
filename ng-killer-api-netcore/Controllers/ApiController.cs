@@ -87,7 +87,8 @@ namespace NgKillerApiCore.Controllers
                 throw new Exception();
             }
 
-            Context.Add(item);
+            Context.Set<T>().Attach(item);
+            Context.Entry(item).State = EntityState.Added;
             Context.SaveChanges();
             return item;
         }

@@ -28,11 +28,8 @@ namespace NgKillerApiCore.Controllers
             {
                 throw new Exception();
             }
-
-
             try
             {
-                Context.Add(req);
 
                 switch (req.Type)
                 {
@@ -40,7 +37,9 @@ namespace NgKillerApiCore.Controllers
                         this.ChangeMission(req.EmitterId);
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_KILL:
-                        this.Kill(req.EmitterId);
+                        var killerToUpdate = Context.Agents.Include(a=>a.Mission).First(a=>a.TargetId == req.EmitterId);
+                        req.ReceiverId = killerToUpdate.Id;
+                        this.Kill(req.EmitterId, killerToUpdate);
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_UNMASK:
                         this.Unmask(req.EmitterId);
@@ -53,22 +52,23 @@ namespace NgKillerApiCore.Controllers
                         break;
                 }
 
-
+                if (req.ParentRequestId > 0)
+                {
+                    var treatedRequest = Context.Requests.Find(req.ParentRequestId);
+                    treatedRequest.IsTreated = true;
+                    Context.Update(treatedRequest);
+                }
+                Context.Add(req);
                 Context.SaveChanges();
                 this.SendToAll(req.GameId.ToString(), "Request", req);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-
+                
             }
 
             
             return req;
-        }
-
-        protected override void UpdateRange(Request dbItem, Request item)
-        {
-            throw new System.NotImplementedException();
         }
 
 
@@ -115,7 +115,7 @@ namespace NgKillerApiCore.Controllers
             agentToUpdate.Status = "dead";
             var killer = this.Context.Agents.First(a => a.TargetId == agentId);
             killer.TargetId = agentToUpdate.TargetId;
-            Models.Action action = new Models.Action
+            Models.Action action = new Models.Action()
             {
                 GameId = agentToUpdate.GameId,
                 KillerId = agentToUpdate.Id,
@@ -126,12 +126,11 @@ namespace NgKillerApiCore.Controllers
             this.Context.SaveChanges();
         }
 
-        private void Kill(string victimId)
+        private void Kill(string victimId, Agent killerToUpdate)
         {
-            var killerToUpdate = this.Context.Agents.First(a => a.TargetId == victimId);
             var mission = killerToUpdate.Mission;
             var victimToUpdate = this.Context.Agents.First(a => a.Id == victimId);
-            var newTarget = this.Context.Agents.First(a => a.Id == victimToUpdate.Id);
+            var newTarget = this.Context.Agents.First(a => a.Id == victimToUpdate.TargetId);
 
             killerToUpdate.MissionId = victimToUpdate.MissionId;
             killerToUpdate.TargetId = newTarget.Id;
@@ -143,7 +142,7 @@ namespace NgKillerApiCore.Controllers
             victimToUpdate.MissionId = null;
             victimToUpdate.TargetId = null;
 
-            var action = new Models.Action
+            var action = new Models.Action()
             {
                 GameId = killerToUpdate.GameId,
                 TargetId = victimToUpdate.Id,
@@ -173,7 +172,7 @@ namespace NgKillerApiCore.Controllers
             victimToUpdate.MissionId = null;
             victimToUpdate.TargetId = null;
 
-            var action = new Models.Action
+            var action = new Models.Action()
             {
                 GameId = victimToUpdate.GameId,
                 TargetId = victimToUpdate.Id,
@@ -195,7 +194,7 @@ namespace NgKillerApiCore.Controllers
                 killer.TargetId = agentToUpdate.TargetId;
                 agentToUpdate.TargetId = null;
                 agentToUpdate.MissionId = null;
-                var action = new Models.Action
+                var action = new Models.Action()
                 {
                     GameId = agentToUpdate.GameId,
                     TargetId = killer.Id,
@@ -208,7 +207,7 @@ namespace NgKillerApiCore.Controllers
             }
             else
             {
-                var action = new Models.Action
+                var action = new Models.Action()
                 {
                     GameId = agentToUpdate.GameId,
                     KillerId = agentToUpdate.Id,

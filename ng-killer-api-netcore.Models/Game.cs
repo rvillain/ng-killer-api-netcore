@@ -10,6 +10,7 @@ namespace NgKillerApiCore.Models
 
         public List<Agent> Agents { get; set; }
         public List<Mission> Missions { get; set; }
-        //public List<Action> Actions { get; set; }
+        public List<Action> Actions { get; set; }
+        public List<Request> Requests { get; set; }
     }
 }

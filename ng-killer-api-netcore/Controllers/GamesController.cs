@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using NgKillerApiCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
@@ -20,8 +19,19 @@ namespace NgKillerApiCore.Controllers
 
             if (!context.Agents.Any())
             {
-                context.Agents.Add(new Agent { Id = "666", Name = "Un petit agent", Status = "Drunk", GameId = 999 });
-                context.Games.Add(new Game { Id = 999, Name = "la petite game" });
+                context.Agents.Add(new Agent { Id = "666", Name = "Un petit agent", Status = "alive", GameId = 999 });
+                context.Agents.Add(new Agent { Id = "667", Name = "Un petit agent 2", Status = "alive", GameId = 999 });
+                context.Agents.Add(new Agent { Id = "668", Name = "Un petit agent 3", Status = "alive", GameId = 999 });
+                context.Agents.Add(new Agent { Id = "669", Name = "Un petit agent 4", Status = "alive", GameId = 999 });
+                context.Agents.Add(new Agent { Id = "670", Name = "Un petit agent 5", Status = "alive", GameId = 999 });
+                
+                context.Missions.Add(new Mission { Id = 666, Title = "Une petite mission", GameId = 999 });
+                context.Missions.Add(new Mission { Id = 667, Title = "Une petite mission 2", GameId = 999 });
+                context.Missions.Add(new Mission { Id = 668, Title = "Une petite mission 3", GameId = 999 });
+                context.Missions.Add(new Mission { Id = 669, Title = "Une petite mission 4", GameId = 999 });
+                context.Missions.Add(new Mission { Id = 670, Title = "Une petite mission 5", GameId = 999 });
+
+                context.Games.Add(new Game { Id = 999, Name = "la petite game", Status = "Created" });
                 //context.Missions.Add(new Mission { Id = 333, Title = "la petite mission" });
                 context.SaveChanges();
             }
@@ -81,7 +91,7 @@ namespace NgKillerApiCore.Controllers
             game.Status = "started";
             Context.Games.Update(game);
 
-            var action = new Models.Action
+            var action = new Models.Action()
             {
                 GameId = game.Id,
                 Type = Constantes.ACTTION_TYPE_GAME_STARTED
@@ -102,6 +112,7 @@ namespace NgKillerApiCore.Controllers
                 .Include(g => g.Missions)
                 .Include(g => g.Agents)
                 .Include(g => g.Actions)
+                .Include(g => g.Requests)
                 .First(g => g.Id == id);
 
             game.Status = "created";
@@ -119,26 +130,12 @@ namespace NgKillerApiCore.Controllers
             }
 
             Context.Actions.RemoveRange(game.Actions);
+            Context.Requests.RemoveRange(game.Requests);
             Context.Games.Update(game);
 
 
             Context.SaveChanges();
             return game;
         }
-
-        //[HttpPost("{id}/missions")]
-        //exports.add_missions = function(req, res)
-        //{
-        //    var gameId = req.params.gameId;
-        //    var missions = req.body.missions;
-        //    missions.forEach(function(mission) {
-        //        var new_mission = new Mission();
-        //        new_mission.title = mission.title;
-        //        new_mission.difficulty = mission.difficulty;
-        //        new_mission.game = gameId;
-        //        new_mission.save(function(err, game) { });
-        //    }, this);
-        //    exports.read_a_game(req, res);
-        //}
     }
 }
