@@ -57,6 +57,7 @@ namespace NgKillerApiCore
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "KillerAPI", Version = "v1" });
+                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\NgKillerApiCore.xml");
             });
         }
 
