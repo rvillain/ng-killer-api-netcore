@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace NgKillerApiCore.Models
 {
@@ -27,6 +28,26 @@ namespace NgKillerApiCore.Models
 
 
         [InverseProperty("Receiver")]
-        public ICollection<Request> Requests { get; set; }
+        public List<Request> Requests { get; set; }
+        [InverseProperty("Killer")]
+        public List<Action> ActionsAsKiller { get; set; }
+        [InverseProperty("Target")]
+        public List<Action> ActionsAsTarget { get; set; }
+
+        [NotMapped]
+        public List<Action> Actions{ 
+            get{
+                var actions = new List<Action>();
+                if(ActionsAsKiller!=null)
+                {
+                    actions.AddRange(ActionsAsKiller);
+                }
+                if(ActionsAsTarget!=null)
+                {
+                    actions.AddRange(ActionsAsTarget);
+                }
+                return actions.OrderByDescending(a=>a.DateCreation).ToList();
+            }
+        }
     }
 }

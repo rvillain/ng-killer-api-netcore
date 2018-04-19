@@ -41,13 +41,15 @@ namespace NgKillerApiCore.Controllers
                 .Include(a => a.Mission)
                 .Include(a => a.Target)
                 .Include(a => a.Requests)
+                .Include(a => a.ActionsAsKiller)
+                .Include(a => a.ActionsAsTarget)
                 .FirstOrDefault(a => a.Id.Equals(id));
             if (item == null)
             {
                 return NotFound();
             }
             //get only non treated request
-            item.Requests = item.Requests.Where(r => !r.IsTreated).ToList();
+            item.Requests = item.Requests.Where(r => !r.IsTreated).OrderByDescending(r => r.DateCreation).ToList();
             return new ObjectResult(item);
         }
 

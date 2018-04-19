@@ -19,19 +19,21 @@ namespace NgKillerApiCore.Controllers
 
             if (!context.Agents.Any())
             {
-                context.Agents.Add(new Agent { Id = "666", Name = "Un petit agent", Status = "alive", GameId = 999 });
-                context.Agents.Add(new Agent { Id = "667", Name = "Un petit agent 2", Status = "alive", GameId = 999 });
-                context.Agents.Add(new Agent { Id = "668", Name = "Un petit agent 3", Status = "alive", GameId = 999 });
-                context.Agents.Add(new Agent { Id = "669", Name = "Un petit agent 4", Status = "alive", GameId = 999 });
-                context.Agents.Add(new Agent { Id = "670", Name = "Un petit agent 5", Status = "alive", GameId = 999 });
+                context.Agents.Add(new Agent { Id = "666", Name = "Un petit agent", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
+                context.Agents.Add(new Agent { Id = "667", Name = "Un petit agent 2", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
+                context.Agents.Add(new Agent { Id = "668", Name = "Un petit agent 3", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
+                context.Agents.Add(new Agent { Id = "669", Name = "Un petit agent 4", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
+                context.Agents.Add(new Agent { Id = "670", Name = "Un petit agent 5", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
+                context.Agents.Add(new Agent { Id = "671", Name = "Un petit agent 6", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
                 
                 context.Missions.Add(new Mission { Id = 666, Title = "Une petite mission", GameId = 999 });
                 context.Missions.Add(new Mission { Id = 667, Title = "Une petite mission 2", GameId = 999 });
                 context.Missions.Add(new Mission { Id = 668, Title = "Une petite mission 3", GameId = 999 });
                 context.Missions.Add(new Mission { Id = 669, Title = "Une petite mission 4", GameId = 999 });
                 context.Missions.Add(new Mission { Id = 670, Title = "Une petite mission 5", GameId = 999 });
+                context.Missions.Add(new Mission { Id = 671, Title = "Une petite mission 6", GameId = 999 });
 
-                context.Games.Add(new Game { Id = 999, Name = "la petite game", Status = "Created" });
+                context.Games.Add(new Game { Id = 999, Name = "la petite game", Status = Constantes.GAME_STATUS_CREATED });
                 //context.Missions.Add(new Mission { Id = 333, Title = "la petite mission" });
                 context.SaveChanges();
             }
@@ -135,6 +137,10 @@ namespace NgKillerApiCore.Controllers
 
 
             Context.SaveChanges();
+            this.SendToAll(game.Id.ToString(),"Request", new Request
+            {
+                Type = Constantes.REQUEST_TYPE_GAME_STATUS
+            });
             return game;
         }
     }

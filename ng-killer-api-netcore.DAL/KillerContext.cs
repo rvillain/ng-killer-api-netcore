@@ -27,6 +27,8 @@ namespace NgKillerApiCore.DAL
             //modelBuilder.Entity<Game>().HasMany(_ => _.Agents).WithOne(_ => _.Game);
             //modelBuilder.Entity<Game>().HasMany(_ => _.Missions).WithOne(_ => _.Game);
             //modelBuilder.Entity<Game>().HasMany(_ => _.Actions).WithOne(_ => _.Game);
+            modelBuilder.Entity<Models.Action>().HasOne(_ => _.Killer).WithMany(_=> _.ActionsAsKiller).IsRequired(false);
+            modelBuilder.Entity<Models.Action>().HasOne(_ => _.Target).WithMany(_=> _.ActionsAsTarget).IsRequired(false);
         }
 
         public DbSet<Models.Action> Actions { get; set; }
@@ -34,10 +36,5 @@ namespace NgKillerApiCore.DAL
         public DbSet<Game> Games { get; set; }
         public DbSet<Mission> Missions { get; set; }
         public DbSet<Request> Requests { get; set; }
-
-        public void SaveChanges(Request req)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

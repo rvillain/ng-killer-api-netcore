@@ -30,25 +30,32 @@ namespace NgKillerApiCore.Controllers
             }
             try
             {
-
                 switch (req.Type)
                 {
                     case Constantes.REQUEST_TYPE_CHANGE_MISSION:
                         this.ChangeMission(req.EmitterId);
+                        req.IsTreated = true;
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_KILL:
-                        var killerToUpdate = Context.Agents.Include(a=>a.Mission).First(a=>a.TargetId == req.EmitterId);
+                        var killerToUpdate = Context.Agents.Include(a => a.Mission).First(a => a.TargetId == req.EmitterId);
                         req.ReceiverId = killerToUpdate.Id;
                         this.Kill(req.EmitterId, killerToUpdate);
+                        req.IsTreated = true;
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_UNMASK:
                         this.Unmask(req.EmitterId);
+                        req.IsTreated = true;
                         break;
                     case Constantes.REQUEST_TYPE_SUICIDE:
                         this.Suicide(req.EmitterId);
+                        req.IsTreated = true;
                         break;
                     case Constantes.REQUEST_TYPE_ASK_UNMASK:
-                        this.AskUnmask(req.EmitterId, req.ReceiverId);
+                        if (!this.AskUnmask(req.EmitterId, req.ReceiverId))
+                        {
+                            Context.SaveChanges();
+                            return req;
+                        }
                         break;
                 }
 
@@ -59,15 +66,21 @@ namespace NgKillerApiCore.Controllers
                     Context.Update(treatedRequest);
                 }
                 Context.Add(req);
+                CheckGameEnd(req.GameId);
                 Context.SaveChanges();
+
+                req.Game = null;
+                req.Emitter = null;
+                req.Receiver = null;
+                req.ParentRequest = null;
                 this.SendToAll(req.GameId.ToString(), "Request", req);
             }
-            catch(Exception)
+            catch (Exception)
             {
-                
+
             }
 
-            
+
             return req;
         }
 
@@ -81,7 +94,7 @@ namespace NgKillerApiCore.Controllers
             var aliveAgents = Context.Agents.Count(a => a.Status == "alive" && a.GameId == emitterToUpdate.GameId);
             if (aliveAgents > 5)
             {
-                if(receiverToUpdate.TargetId == emitterToUpdate.Id)
+                if (receiverToUpdate.TargetId == emitterToUpdate.Id)
                 {
                     return true;
                 }
@@ -112,18 +125,25 @@ namespace NgKillerApiCore.Controllers
         {
             var agentToUpdate = this.Context.Agents.First(a => a.Id == agentId);
             agentToUpdate.Life = 0;
-            agentToUpdate.Status = "dead";
+            agentToUpdate.Status = Constantes.AGENT_STATUS_DEAD;
             var killer = this.Context.Agents.First(a => a.TargetId == agentId);
             killer.TargetId = agentToUpdate.TargetId;
+            Context.Update(agentToUpdate);
+            Context.Update(killer);
             Models.Action action = new Models.Action()
             {
                 GameId = agentToUpdate.GameId,
                 KillerId = agentToUpdate.Id,
+                KillerName = agentToUpdate.Name,
                 Type = Constantes.ACTTION_TYPE_SUICIDE
             };
             this.Context.Actions.Add(action);
-
-            this.Context.SaveChanges();
+            
+            this.SendToAll(agentToUpdate.GameId.ToString(), "Request", new Request(){
+                Type = Constantes.REQUEST_TYPE_AGENT_UPDATE,
+                ReceiverId = killer.Id,
+                IsTreated = true
+            });
         }
 
         private void Kill(string victimId, Agent killerToUpdate)
@@ -146,9 +166,12 @@ namespace NgKillerApiCore.Controllers
             {
                 GameId = killerToUpdate.GameId,
                 TargetId = victimToUpdate.Id,
+                TargetName = victimToUpdate.Name,
                 KillerId = killerToUpdate.Id,
+                KillerName = killerToUpdate.Name,
                 Type = Constantes.ACTTION_TYPE_KILL,
                 MissionId = mission.Id,
+                MissionTitle = mission.Title
             };
 
             this.Context.Agents.UpdateRange(new List<Agent> { killerToUpdate, victimToUpdate });
@@ -176,7 +199,9 @@ namespace NgKillerApiCore.Controllers
             {
                 GameId = victimToUpdate.GameId,
                 TargetId = victimToUpdate.Id,
+                TargetName = victimToUpdate.Name,
                 KillerId = target.Id,
+                KillerName = target.Name,
                 Type = Constantes.ACTTION_TYPE_UNMASK
             };
 
@@ -198,7 +223,9 @@ namespace NgKillerApiCore.Controllers
                 {
                     GameId = agentToUpdate.GameId,
                     TargetId = killer.Id,
+                    TargetName = killer.Name,
                     KillerId = agentToUpdate.Id,
+                    KillerName = agentToUpdate.Name,
                     Type = Constantes.ACTTION_TYPE_ERROR_DEATH
                 };
 
@@ -211,11 +238,31 @@ namespace NgKillerApiCore.Controllers
                 {
                     GameId = agentToUpdate.GameId,
                     KillerId = agentToUpdate.Id,
+                    KillerName = agentToUpdate.Name,
                     Type = Constantes.ACTTION_TYPE_WRONG_KILLER
                 };
 
                 this.Context.Agents.UpdateRange(new List<Agent> { agentToUpdate });
                 this.Context.Actions.Add(action);
+            }
+        }
+
+        private void CheckGameEnd(long GameId)
+        {
+            var game = Context.Games.Include(g => g.Agents).First(g => g.Id == GameId);
+            if (game.Agents.Count(a => a.Status == Constantes.AGENT_STATUS_ALIVE) == 1 && game.Status == Constantes.GAME_STATUS_STARTED)
+            {
+                game.Status = Constantes.GAME_STATUS_FINISHED;
+                var lastAgent = game.Agents.First(a=>a.Status == Constantes.AGENT_STATUS_ALIVE);
+                Models.Action action = new Models.Action()
+                {
+                    GameId = GameId,
+                    Type = Constantes.ACTTION_TYPE_END,
+                    KillerId = lastAgent.Id,
+                    KillerName = lastAgent.Name
+                };
+                this.Context.Actions.Add(action);
+                Context.Update(game);
             }
         }
     }
