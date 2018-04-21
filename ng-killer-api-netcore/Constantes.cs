@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace NgKillerApiCore
 {
+    /// <summary>
+    /// Constantes
+    /// </summary>
     public class Constantes
     {
 
@@ -33,6 +36,7 @@ namespace NgKillerApiCore
         public const string REQUEST_TYPE_ASK_UNMASK = "ask-unmask";
         public const string REQUEST_TYPE_CONFIRM_UNMASK = "confirm-unmask";
         public const string REQUEST_TYPE_UNCONFIRM_UNMASK = "unconfirm-unmask";
+        public const string REQUEST_TYPE_WRONG_KILLER = "wrong-killer";
 
         public const string REQUEST_TYPE_AGENT_UPDATE = "agent-update";
         public const string REQUEST_TYPE_CHANGE_MISSION = "change-mission";

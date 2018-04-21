@@ -6,37 +6,51 @@ using NgKillerApiCore.DAL;
 using NgKillerApiCore.Models;
 using NgKillerApiCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using System.Transactions;
 
 namespace NgKillerApiCore.Controllers
 {
+    /// <summary>
+    /// Gestion dezs agents
+    /// </summary>
     [Route("api/[controller]")]
     public class AgentsController : ApiController<Agent, string, KillerContext, RequestHub>
     {
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="hubContext"></param>
         public AgentsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
             Includes.Add(a => a.Game);
             //Includes.Add(a => a.Mission);
         }
 
-        public override Agent Create([FromBody]Agent item)
+        /// <summary>
+        /// Rejoindre une partie
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <returns></returns>
+        public override Agent Create([FromBody]Agent agent)
         {
-            using (var transaction = new TransactionScope())
-            {
-                var agent = base.Create(item);
-                SendToAll(item.GameId.ToString(), "Request", new Request{
-                    GameId = agent.GameId,
-                    EmitterId = agent.Id,
-                    Emitter = agent,
-                    Type = Constantes.REQUEST_TYPE_NEW_AGENT
-                });
-                transaction.Complete();
-                return agent;
-            }
+            var createdAgent = base.Create(agent);
+            SendToAll(agent.GameId.ToString(), "Request", new Request{
+                GameId = createdAgent.GameId,
+                EmitterId = createdAgent.Id,
+                Emitter = createdAgent,
+                Type = Constantes.REQUEST_TYPE_NEW_AGENT
+            });
+            return createdAgent;
         }
+
+        /// <summary>
+        /// Infos de l'agent 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public override IActionResult GetById(string id)
         {
-            Agent item = Context.Agents
+            Agent item = Context.Agents.AsNoTracking()
                 .Include(a => a.Game)
                 .Include(a => a.Mission)
                 .Include(a => a.Target)
@@ -53,11 +67,16 @@ namespace NgKillerApiCore.Controllers
             return new ObjectResult(item);
         }
 
+        /// <summary>
+        /// Liste des agent démasquables
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}/getForUnmask")]
         public ICollection<Agent> GetForUnmask(string id)
         {
             var agent = Context.Agents.Find(id);
-            var agents = Context.Agents.Where(a => a.Id != agent.Id && a.GameId == agent.GameId);
+            var agents = Context.Agents.AsNoTracking().Where(a => a.Id != agent.Id && a.GameId == agent.GameId);
 
             return agents.ToList();
         }

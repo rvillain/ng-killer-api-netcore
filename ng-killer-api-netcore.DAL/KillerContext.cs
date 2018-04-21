@@ -15,20 +15,10 @@ namespace NgKillerApiCore.DAL
         {
             if (optionsBuilder.IsConfigured) return;
 
-            // Migration
-            //optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Killer;Integrated Security=True");
-            //optionsBuilder.UseSqlServer("Data Source=MOONSERV;Initial Catalog=Killer;User ID=sa;Password=Quantipro69");
-            optionsBuilder.UseSqlServer("Data Source=DISCOVERY;Initial Catalog=Killer;User ID=sa;Password=Quantipro69");
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Game>().HasMany(_ => _.Agents).WithOne(_ => _.Game);
-            //modelBuilder.Entity<Game>().HasMany(_ => _.Missions).WithOne(_ => _.Game);
-            //modelBuilder.Entity<Game>().HasMany(_ => _.Actions).WithOne(_ => _.Game);
-            modelBuilder.Entity<Models.Action>().HasOne(_ => _.Killer).WithMany(_=> _.ActionsAsKiller).IsRequired(false);
-            modelBuilder.Entity<Models.Action>().HasOne(_ => _.Target).WithMany(_=> _.ActionsAsTarget).IsRequired(false);
         }
 
         public DbSet<Models.Action> Actions { get; set; }

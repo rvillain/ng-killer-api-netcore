@@ -8,18 +8,24 @@ using NgKillerApiCore.Hubs;
 
 namespace NgKillerApiCore.Controllers
 {
-
+    /// <summary>
+    /// Gestion des missions
+    /// </summary>
     public class MissionsController : ApiController<Mission, long, KillerContext, RequestHub>
     {
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="hubContext"></param>
         public MissionsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
-            //if (!context.Missions.Any())
-            //{
-            //    context.Missions.Add(new Mission { Id = 1, Title = "Test", Difficulty = "Easy" });
-            //    context.SaveChanges();
-            //}
         }
 
+        /// <summary>
+        /// Liste des missions génériques
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("generics")]
         public ICollection<Mission> GetGenerics()
         {

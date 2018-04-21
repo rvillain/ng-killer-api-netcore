@@ -10,38 +10,30 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace NgKillerApiCore.Controllers
 {
+    /// <summary>
+    /// Contrôleur des parties
+    /// </summary>
     [Route("api/[controller]")]
     public class GamesController : ApiController<Game, long, KillerContext, RequestHub>
     {
+        /// <summary>
+        /// Contrôleur des parties - Constructeur
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="hubContext"></param>
         public GamesController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
             Includes.Add(g => g.Agents);
-
-            if (!context.Agents.Any())
-            {
-                context.Agents.Add(new Agent { Id = "666", Name = "Un petit agent", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
-                context.Agents.Add(new Agent { Id = "667", Name = "Un petit agent 2", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
-                context.Agents.Add(new Agent { Id = "668", Name = "Un petit agent 3", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
-                context.Agents.Add(new Agent { Id = "669", Name = "Un petit agent 4", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
-                context.Agents.Add(new Agent { Id = "670", Name = "Un petit agent 5", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
-                context.Agents.Add(new Agent { Id = "671", Name = "Un petit agent 6", Status = Constantes.AGENT_STATUS_ALIVE, GameId = 999 });
-                
-                context.Missions.Add(new Mission { Id = 666, Title = "Une petite mission", GameId = 999 });
-                context.Missions.Add(new Mission { Id = 667, Title = "Une petite mission 2", GameId = 999 });
-                context.Missions.Add(new Mission { Id = 668, Title = "Une petite mission 3", GameId = 999 });
-                context.Missions.Add(new Mission { Id = 669, Title = "Une petite mission 4", GameId = 999 });
-                context.Missions.Add(new Mission { Id = 670, Title = "Une petite mission 5", GameId = 999 });
-                context.Missions.Add(new Mission { Id = 671, Title = "Une petite mission 6", GameId = 999 });
-
-                context.Games.Add(new Game { Id = 999, Name = "la petite game", Status = Constantes.GAME_STATUS_CREATED });
-                //context.Missions.Add(new Mission { Id = 333, Title = "la petite mission" });
-                context.SaveChanges();
-            }
         }
 
+        /// <summary>
+        /// Récupère la partie avec les missions, les agents et les actions
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public override IActionResult GetById(long id)
         {
-            Game item = Context.Set<Game>()
+            Game item = Context.Set<Game>().AsNoTracking()
                 .Include(g => g.Missions)
                 .Include(g => g.Agents)
                 .Include(g => g.Actions)
@@ -59,10 +51,15 @@ namespace NgKillerApiCore.Controllers
             return o.OrderBy(x => rnd.Next()).ToList();
         }
 
+        /// <summary>
+        /// Démarer une partie.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("{id}/start")]
         public Game StartAGame(long id)
         {
-            Game game = Context.Set<Game>()
+            Game game = Context.Set<Game>().AsNoTracking()
                 .Include(g => g.Missions)
                 .Include(g => g.Agents)
                 .Include(g => g.Actions)
@@ -107,10 +104,16 @@ namespace NgKillerApiCore.Controllers
             });
             return game;
         }
+
+        /// <summary>
+        /// Réinitialiser la partie
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("{id}/reinit")]
         public Game ReinitAGame(long id)
         {
-            Game game = Context.Set<Game>()
+            Game game = Context.Set<Game>().AsNoTracking()
                 .Include(g => g.Missions)
                 .Include(g => g.Agents)
                 .Include(g => g.Actions)

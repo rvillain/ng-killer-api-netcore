@@ -52,7 +52,7 @@ namespace NgKillerApiCore.Controllers
         [HttpGet]
         public IEnumerable<T> GetAll()
         {
-            var query = Context.Set<T>().AsQueryable();
+            var query = Context.Set<T>().AsNoTracking().AsQueryable();
             //Includes.Aggregate(query, (dbSet, inc) => dbSet.Include(inc));
             var result = query.ToList();
             return result;

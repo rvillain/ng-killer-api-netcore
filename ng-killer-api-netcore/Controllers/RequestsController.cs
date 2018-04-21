@@ -13,13 +13,36 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace NgKillerApiCore.Controllers
 {
+    /// <summary>
+    /// Contrôleur des requêtes émisent par les joueurs
+    /// </summary>
     [Route("api/[controller]")]
     public class RequestsController : ApiController<Request, long, KillerContext, RequestHub>
     {
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="hubContext"></param>
         public RequestsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
         {
         }
 
+        /// <summary>
+        /// Envoyer une nouvelle requête
+        /// </summary>
+        /// <param name="req">
+        /// Types:
+        /// "agent-update";
+        /// "change-mission";
+        /// "suicide";
+        /// "new-action";
+        /// "new-agent";
+        /// "game-status";
+        /// "action-error";
+        /// "tribunal-status";
+        /// </param>
+        /// <returns></returns>
         [HttpPost("push")]
         [EnableCors("AllowAll")]
         public Request Push([FromBody]Request req)
@@ -40,11 +63,23 @@ namespace NgKillerApiCore.Controllers
                         var killerToUpdate = Context.Agents.Include(a => a.Mission).First(a => a.TargetId == req.EmitterId);
                         req.ReceiverId = killerToUpdate.Id;
                         this.Kill(req.EmitterId, killerToUpdate);
+                        this.SendToAll(req.GameId.ToString(), "Request", new Request()
+                        {
+                            Type = Constantes.REQUEST_TYPE_AGENT_UPDATE,
+                            ReceiverId = req.EmitterId,
+                            IsTreated = true
+                        });
                         req.IsTreated = true;
                         break;
                     case Constantes.REQUEST_TYPE_CONFIRM_UNMASK:
                         this.Unmask(req.EmitterId);
                         req.IsTreated = true;
+                        this.SendToAll(req.GameId.ToString(), "Request", new Request()
+                        {
+                            Type = Constantes.REQUEST_TYPE_AGENT_UPDATE,
+                            ReceiverId = req.EmitterId,
+                            IsTreated = true
+                        });
                         break;
                     case Constantes.REQUEST_TYPE_SUICIDE:
                         this.Suicide(req.EmitterId);
@@ -54,6 +89,12 @@ namespace NgKillerApiCore.Controllers
                         if (!this.AskUnmask(req.EmitterId, req.ReceiverId))
                         {
                             Context.SaveChanges();
+                            this.SendToAll(req.GameId.ToString(), "Request", new Request()
+                            {
+                                Type = Constantes.REQUEST_TYPE_WRONG_KILLER,
+                                ReceiverId = req.EmitterId,
+                                IsTreated = true
+                            });
                             return req;
                         }
                         break;
@@ -61,7 +102,7 @@ namespace NgKillerApiCore.Controllers
 
                 if (req.ParentRequestId > 0)
                 {
-                    var treatedRequest = Context.Requests.Find(req.ParentRequestId);
+                    var treatedRequest = Context.Requests.AsNoTracking().First(r=>r.Id == req.ParentRequestId);
                     treatedRequest.IsTreated = true;
                     Context.Update(treatedRequest);
                 }
@@ -85,7 +126,7 @@ namespace NgKillerApiCore.Controllers
         }
 
 
-
+        
         private bool AskUnmask(string emitterId, string receiverId)
         {
             var emitterToUpdate = Context.Agents.Find(emitterId);
@@ -100,11 +141,10 @@ namespace NgKillerApiCore.Controllers
                 }
                 else
                 {
-                    this.WrongKiller(emitterToUpdate);
+                    this.WrongKiller(emitterToUpdate, receiverId);
                 }
             }
             return false;
-            //emit action error
         }
 
         private void ChangeMission(string agentId)
@@ -209,7 +249,7 @@ namespace NgKillerApiCore.Controllers
             this.Context.Actions.Add(action);
         }
 
-        private void WrongKiller(Agent agentToUpdate)
+        private void WrongKiller(Agent agentToUpdate, string blufferId)
         {
             agentToUpdate.Life--;
             if (agentToUpdate.Life <= 0)
@@ -222,8 +262,7 @@ namespace NgKillerApiCore.Controllers
                 var action = new Models.Action()
                 {
                     GameId = agentToUpdate.GameId,
-                    TargetId = killer.Id,
-                    TargetName = killer.Name,
+                    TargetId = blufferId,
                     KillerId = agentToUpdate.Id,
                     KillerName = agentToUpdate.Name,
                     Type = Constantes.ACTTION_TYPE_ERROR_DEATH
@@ -237,6 +276,7 @@ namespace NgKillerApiCore.Controllers
                 var action = new Models.Action()
                 {
                     GameId = agentToUpdate.GameId,
+                    TargetId = blufferId,
                     KillerId = agentToUpdate.Id,
                     KillerName = agentToUpdate.Name,
                     Type = Constantes.ACTTION_TYPE_WRONG_KILLER

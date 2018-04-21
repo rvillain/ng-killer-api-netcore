@@ -20,7 +20,7 @@ namespace NgKillerApiCore.Models
         public long GameId { get; set; }
         public string KillerId { get; set; }
         public string TargetId { get; set; }
-        public long MissionId { get; set; }
+        public long? MissionId { get; set; }
 
         [ForeignKey(nameof(GameId))]
         public Game Game { get; set; }
