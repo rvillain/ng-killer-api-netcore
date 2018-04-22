@@ -133,6 +133,12 @@ namespace NgKillerApiCore.Controllers
             return new NoContentResult();
         }
 
+        /// <summary>
+        /// Envoyer un message via signalR à tous les joueurs d'une partie
+        /// </summary>
+        /// <param name="room"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
         protected void SendToAll(string room, string method, object data)
         {
             this._hubContext.Clients.Group(room).SendAsync(method, data);

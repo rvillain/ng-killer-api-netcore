@@ -15,6 +15,7 @@ namespace NgKillerApiCore
         public const string GAME_STATUS_STARTED = "started";
         public const string GAME_STATUS_FINISHED = "finished";
 
+        public const int AGENT_LIFE_AT_START = 3;
         public const string AGENT_STATUS_ALIVE = "alive";
         public const string AGENT_STATUS_DEAD = "dead";
         public const string AGENT_STATUS_WINNER = "winner";
@@ -26,6 +27,8 @@ namespace NgKillerApiCore
         public const string ACTTION_TYPE_SUICIDE = "suicide";
         public const string ACTTION_TYPE_GAME_STARTED = "game_started";
         public const string ACTTION_TYPE_END = "end";
+
+        public const string REQUEST_METHOD_NAME = "Request";
 
         public const string REQUEST_TYPE_JOIN_ROOM = "join-room";
 
@@ -47,5 +50,6 @@ namespace NgKillerApiCore
         public const string REQUEST_TYPE_ACTION_ERROR = "action-error";
         public const string REQUEST_TYPE_TRIBUNAL_STATUS = "tribunal-status";
 
+        public const int FINAL_NB = 5;
     }
 }

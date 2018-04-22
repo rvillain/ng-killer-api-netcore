@@ -52,6 +52,30 @@ namespace NgKillerApiCore.Controllers
         }
 
         /// <summary>
+        /// Import des missions génériques
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="difficulty"></param>
+        [HttpPost("{id}/importmissions")]
+        public void ImportMissions(long id,[FromBody] string difficulty)
+        {
+            var missions = Context.Missions.AsNoTracking().Where(m => m.Difficulty == difficulty && m.GameId == null).ToList();
+
+            foreach(var mission in missions)
+            {
+                var newMission = new Mission
+                {
+                    Title = mission.Title,
+                    Difficulty = difficulty,
+                    GameId = id,
+                    IsUsed = false
+                };
+                Context.Add(newMission);
+            }
+            Context.SaveChanges();
+        }
+
+        /// <summary>
         /// Démarer une partie.
         /// </summary>
         /// <param name="id"></param>
@@ -77,8 +101,8 @@ namespace NgKillerApiCore.Controllers
 
                 sourceAgent.TargetId = targetAgent.Id;
                 sourceAgent.MissionId = mission.Id;
-                sourceAgent.Status = "alive";
-                sourceAgent.Life = 3;
+                sourceAgent.Status = Constantes.AGENT_STATUS_ALIVE;
+                sourceAgent.Life = Constantes.AGENT_LIFE_AT_START;
 
                 Context.Agents.Update(sourceAgent);
 
@@ -87,7 +111,7 @@ namespace NgKillerApiCore.Controllers
                 Context.Missions.Update(mission);
             }
 
-            game.Status = "started";
+            game.Status = Constantes.GAME_STATUS_STARTED;
             Context.Games.Update(game);
 
             var action = new Models.Action()
@@ -98,8 +122,9 @@ namespace NgKillerApiCore.Controllers
             Context.Actions.Add(action);
 
             Context.SaveChanges();
-            this.SendToAll(game.Id.ToString(),"Request", new Request
+            this.SendToAll(game.Id.ToString(),Constantes.REQUEST_METHOD_NAME, new Request
             {
+                GameId = game.Id,
                 Type = Constantes.REQUEST_TYPE_GAME_STATUS
             });
             return game;
@@ -120,18 +145,22 @@ namespace NgKillerApiCore.Controllers
                 .Include(g => g.Requests)
                 .First(g => g.Id == id);
 
-            game.Status = "created";
+            game.Status = Constantes.GAME_STATUS_CREATED;
 
             foreach (var agent in game.Agents)
             {
-                agent.Status = "alive";
+                agent.Status = Constantes.AGENT_STATUS_ALIVE;
                 agent.MissionId = null;
                 agent.TargetId = null;
-                agent.Life = 3;
+                agent.Life = Constantes.AGENT_LIFE_AT_START;
+
+                Context.Update(agent);
             }
             foreach (var mission in game.Missions)
             {
                 mission.IsUsed = false;
+
+                Context.Update(mission);
             }
 
             Context.Actions.RemoveRange(game.Actions);
@@ -140,8 +169,9 @@ namespace NgKillerApiCore.Controllers
 
 
             Context.SaveChanges();
-            this.SendToAll(game.Id.ToString(),"Request", new Request
+            this.SendToAll(game.Id.ToString(), Constantes.REQUEST_METHOD_NAME, new Request
             {
+                GameId = game.Id,
                 Type = Constantes.REQUEST_TYPE_GAME_STATUS
             });
             return game;

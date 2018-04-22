@@ -34,7 +34,7 @@ namespace NgKillerApiCore.Controllers
         public override Agent Create([FromBody]Agent agent)
         {
             var createdAgent = base.Create(agent);
-            SendToAll(agent.GameId.ToString(), "Request", new Request{
+            SendToAll(agent.GameId.ToString(), Constantes.REQUEST_METHOD_NAME, new Request{
                 GameId = createdAgent.GameId,
                 EmitterId = createdAgent.Id,
                 Emitter = createdAgent,
