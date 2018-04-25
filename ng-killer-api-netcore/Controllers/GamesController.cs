@@ -11,13 +11,13 @@ using Microsoft.AspNetCore.SignalR;
 namespace NgKillerApiCore.Controllers
 {
     /// <summary>
-    /// Contrôleur des parties
+    /// Contrï¿½leur des parties
     /// </summary>
     [Route("api/[controller]")]
     public class GamesController : ApiController<Game, long, KillerContext, RequestHub>
     {
         /// <summary>
-        /// Contrôleur des parties - Constructeur
+        /// Contrï¿½leur des parties - Constructeur
         /// </summary>
         /// <param name="context"></param>
         /// <param name="hubContext"></param>
@@ -27,7 +27,7 @@ namespace NgKillerApiCore.Controllers
         }
 
         /// <summary>
-        /// Récupère la partie avec les missions, les agents et les actions
+        /// Rï¿½cupï¿½re la partie avec les missions, les agents et les actions
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -52,7 +52,7 @@ namespace NgKillerApiCore.Controllers
         }
 
         /// <summary>
-        /// Import des missions génériques
+        /// Import des missions gï¿½nï¿½riques
         /// </summary>
         /// <param name="id"></param>
         /// <param name="difficulty"></param>
@@ -76,7 +76,7 @@ namespace NgKillerApiCore.Controllers
         }
 
         /// <summary>
-        /// Démarer une partie.
+        /// Dï¿½marer une partie.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -131,7 +131,7 @@ namespace NgKillerApiCore.Controllers
         }
 
         /// <summary>
-        /// Réinitialiser la partie
+        /// Rï¿½initialiser la partie
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

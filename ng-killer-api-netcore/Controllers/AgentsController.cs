@@ -80,5 +80,25 @@ namespace NgKillerApiCore.Controllers
 
             return agents.ToList();
         }
+
+        /// <summary>
+        /// Ajouter un device pour push notification
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/addDevice")]
+        public void AddDevice(string id, [FromBody]Device device)
+        {
+            var agent = this.Context.Agents.Find(id);
+            var existingDevice = this.Context.Devices.FirstOrDefault(d=>d.Name==id);
+            if(existingDevice!=null){
+                this.Context.Remove(existingDevice);
+            }
+            device.Name = agent.Id;
+            this.Context.Devices.Add(device);
+            this.Context.SaveChanges();
+            return;
+        }
     }
 }

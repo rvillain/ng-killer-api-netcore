@@ -26,5 +26,6 @@ namespace NgKillerApiCore.DAL
         public DbSet<Game> Games { get; set; }
         public DbSet<Mission> Missions { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Device> Devices { get; set; }
     }
 }

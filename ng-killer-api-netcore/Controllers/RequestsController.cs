@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using NgKillerApiCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using WebPush;
+using Microsoft.Extensions.Configuration;
 
 namespace NgKillerApiCore.Controllers
 {
@@ -19,13 +21,17 @@ namespace NgKillerApiCore.Controllers
     [Route("api/[controller]")]
     public class RequestsController : ApiController<Request, long, KillerContext, RequestHub>
     {
+        private IConfiguration _configuration;
+
         /// <summary>
         /// Constructeur
         /// </summary>
         /// <param name="context"></param>
         /// <param name="hubContext"></param>
-        public RequestsController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
+        /// <param name="configuration"></param>
+        public RequestsController(KillerContext context, IHubContext<RequestHub> hubContext, IConfiguration configuration) : base(context, hubContext)
         {
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -92,12 +98,19 @@ namespace NgKillerApiCore.Controllers
                             });
                             throw new Exception("Non, ce n'est pas votre killer");
                         }
+                        else
+                        {
+                            sendPushNotification(req.ReceiverId, req.Type);
+                        }
+                        break;
+                    case Constantes.REQUEST_TYPE_ASK_KILL:
+                        sendPushNotification(req.ReceiverId, req.Type);
                         break;
                 }
 
                 if (req.ParentRequestId > 0)
                 {
-                    var treatedRequest = Context.Requests.AsNoTracking().First(r=>r.Id == req.ParentRequestId);
+                    var treatedRequest = Context.Requests.AsNoTracking().First(r => r.Id == req.ParentRequestId);
                     treatedRequest.IsTreated = true;
                     Context.Update(treatedRequest);
                 }
@@ -121,7 +134,7 @@ namespace NgKillerApiCore.Controllers
         }
 
 
-        
+
         private bool AskUnmask(string emitterId, string receiverId)
         {
             var emitterToUpdate = Context.Agents.Find(emitterId);
@@ -145,7 +158,7 @@ namespace NgKillerApiCore.Controllers
         private bool ChangeMission(string agentId)
         {
             var agentToUpdate = this.Context.Agents.First(a => a.Id == agentId);
-            if(agentToUpdate.Life == 1)
+            if (agentToUpdate.Life == 1)
             {
                 throw new Exception("Vous n'avez pas assez de points de vie");
             }
@@ -182,8 +195,9 @@ namespace NgKillerApiCore.Controllers
                 Type = Constantes.ACTTION_TYPE_SUICIDE
             };
             this.Context.Actions.Add(action);
-            
-            this.SendToAll(agentToUpdate.GameId.ToString(), Constantes.REQUEST_METHOD_NAME, new Request(){
+
+            this.SendToAll(agentToUpdate.GameId.ToString(), Constantes.REQUEST_METHOD_NAME, new Request()
+            {
                 Type = Constantes.REQUEST_TYPE_AGENT_UPDATE,
                 ReceiverId = killer.Id,
                 IsTreated = true
@@ -297,7 +311,7 @@ namespace NgKillerApiCore.Controllers
             if (game.Agents.Count(a => a.Status == Constantes.AGENT_STATUS_ALIVE) == 1 && game.Status == Constantes.GAME_STATUS_STARTED)
             {
                 game.Status = Constantes.GAME_STATUS_FINISHED;
-                var lastAgent = game.Agents.First(a=>a.Status == Constantes.AGENT_STATUS_ALIVE);
+                var lastAgent = game.Agents.First(a => a.Status == Constantes.AGENT_STATUS_ALIVE);
                 Models.Action action = new Models.Action()
                 {
                     GameId = GameId,
@@ -321,6 +335,67 @@ namespace NgKillerApiCore.Controllers
             {
                 return false;
             }
+        }
+
+        
+        [HttpPost("pushNotif")]
+        [EnableCors("AllowAll")]
+        public void PushNotif([FromBody]string message){
+            var devices = Context.Devices.ToList();
+
+            foreach(var device in devices){
+                try{
+                    string vapidPublicKey = _configuration.GetSection("VapidKeys")["PublicKey"];
+                    string vapidPrivateKey = _configuration.GetSection("VapidKeys")["PrivateKey"];
+
+                    var pushSubscription = new PushSubscription(device.PushEndpoint, device.PushP256DH, device.PushAuth);
+                    var vapidDetails = new VapidDetails("mailto:example@example.com", vapidPublicKey, vapidPrivateKey);
+
+                    var webPushClient = new WebPushClient();
+                    webPushClient.SendNotification(pushSubscription, message, vapidDetails);
+                }
+                catch(Exception ex){
+                    
+                }
+                
+            }
+
+           
+        }
+
+        private void sendPushNotification(string agentId, string requestType)
+        {
+            try
+            {
+                string title = "Killer";
+                string message = "Killer Notif";
+                switch (requestType)
+                {
+                    case Constantes.REQUEST_TYPE_ASK_KILL:
+                        message = "On vous a tué";
+                        break;
+                    case Constantes.REQUEST_TYPE_ASK_UNMASK:
+                        message = "On vous a démasqué";
+                        break;
+                }
+
+                var payload = string.Format("{{\"title\": \"{0}\", \"message\": \"{1}\", \"agentId\":\"{2}\"}}", title, message, agentId);
+                var device = Context.Devices.Where(m => m.Name == agentId).OrderByDescending(m => m.Id).First();
+
+                string vapidPublicKey = _configuration.GetSection("VapidKeys")["PublicKey"];
+                string vapidPrivateKey = _configuration.GetSection("VapidKeys")["PrivateKey"];
+
+                var pushSubscription = new PushSubscription(device.PushEndpoint, device.PushP256DH, device.PushAuth);
+                var vapidDetails = new VapidDetails("mailto:example@example.com", vapidPublicKey, vapidPrivateKey);
+
+                var webPushClient = new WebPushClient();
+                webPushClient.SendNotification(pushSubscription, payload, vapidDetails);
+            }
+            catch (Exception ex)
+            {
+
+            }
+
         }
     }
 }

@@ -46,7 +46,7 @@ namespace NgKillerApiCore
         {
             //services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
             services.AddDbContext<KillerContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), b=>b.MigrationsAssembly("NgKillerApiCore")));
+                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), b=>b.MigrationsAssembly("NgKillerApiCore")));
 
             services.AddSignalR();
             services.AddMvc().AddJsonOptions(options =>
@@ -89,8 +89,20 @@ namespace NgKillerApiCore
             {
                 app.UseDeveloperExceptionPage();
             }
+            if (Configuration.GetSection("VapidKeys")["PublicKey"].Length == 0 || Configuration.GetSection("VapidKeys")["PrivateKey"].Length == 0)
+            {
+                app.UseMvc(routes =>
+                {
+                    routes.MapRoute(
+                        name: "default",
+                        template: "{controller=WebPush}/{action=GenerateKeys}/{id?}");
+                });
 
-            app.UseMvc(); 
+                return;
+            }else{
+                app.UseMvc(); 
+            }
+            
             app.UseCors("AllowAll");
             app.UseSignalR(routes =>
             {
