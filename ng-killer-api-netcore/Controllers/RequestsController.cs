@@ -12,6 +12,7 @@ using NgKillerApiCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using WebPush;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace NgKillerApiCore.Controllers
 {
@@ -21,17 +22,20 @@ namespace NgKillerApiCore.Controllers
     [Route("api/[controller]")]
     public class RequestsController : ApiController<Request, long, KillerContext, RequestHub>
     {
-        private IConfiguration _configuration;
+        private ILogger<RequestsController> _logger;
+        private WebPushService _webPushService;
 
         /// <summary>
         /// Constructeur
         /// </summary>
         /// <param name="context"></param>
         /// <param name="hubContext"></param>
-        /// <param name="configuration"></param>
-        public RequestsController(KillerContext context, IHubContext<RequestHub> hubContext, IConfiguration configuration) : base(context, hubContext)
+        /// <param name="logger"></param>
+        /// <param name="webPushService"></param>
+        public RequestsController(KillerContext context, IHubContext<RequestHub> hubContext, ILogger<RequestsController> logger, WebPushService webPushService) : base(context, hubContext)
         {
-            _configuration = configuration;
+            _logger = logger;
+            _webPushService = webPushService;
         }
 
         /// <summary>
@@ -100,11 +104,11 @@ namespace NgKillerApiCore.Controllers
                         }
                         else
                         {
-                            sendPushNotification(req.ReceiverId, req.Type);
+                            _webPushService.SendPushNotification(req.ReceiverId, req.Type);
                         }
                         break;
                     case Constantes.REQUEST_TYPE_ASK_KILL:
-                        sendPushNotification(req.ReceiverId, req.Type);
+                        _webPushService.SendPushNotification(req.ReceiverId, req.Type);
                         break;
                 }
 
@@ -337,65 +341,12 @@ namespace NgKillerApiCore.Controllers
             }
         }
 
-        
+
         [HttpPost("pushNotif")]
         [EnableCors("AllowAll")]
-        public void PushNotif([FromBody]string message){
-            var devices = Context.Devices.ToList();
-
-            foreach(var device in devices){
-                try{
-                    string vapidPublicKey = _configuration.GetSection("VapidKeys")["PublicKey"];
-                    string vapidPrivateKey = _configuration.GetSection("VapidKeys")["PrivateKey"];
-
-                    var pushSubscription = new PushSubscription(device.PushEndpoint, device.PushP256DH, device.PushAuth);
-                    var vapidDetails = new VapidDetails("mailto:example@example.com", vapidPublicKey, vapidPrivateKey);
-
-                    var webPushClient = new WebPushClient();
-                    webPushClient.SendNotification(pushSubscription, message, vapidDetails);
-                }
-                catch(Exception ex){
-                    
-                }
-                
-            }
-
-           
-        }
-
-        private void sendPushNotification(string agentId, string requestType)
+        public void PushNotif([FromBody]string message)
         {
-            try
-            {
-                string title = "Killer";
-                string message = "Killer Notif";
-                switch (requestType)
-                {
-                    case Constantes.REQUEST_TYPE_ASK_KILL:
-                        message = "On vous a tué";
-                        break;
-                    case Constantes.REQUEST_TYPE_ASK_UNMASK:
-                        message = "On vous a démasqué";
-                        break;
-                }
-
-                var payload = string.Format("{{\"title\": \"{0}\", \"message\": \"{1}\", \"agentId\":\"{2}\"}}", title, message, agentId);
-                var device = Context.Devices.Where(m => m.Name == agentId).OrderByDescending(m => m.Id).First();
-
-                string vapidPublicKey = _configuration.GetSection("VapidKeys")["PublicKey"];
-                string vapidPrivateKey = _configuration.GetSection("VapidKeys")["PrivateKey"];
-
-                var pushSubscription = new PushSubscription(device.PushEndpoint, device.PushP256DH, device.PushAuth);
-                var vapidDetails = new VapidDetails("mailto:example@example.com", vapidPublicKey, vapidPrivateKey);
-
-                var webPushClient = new WebPushClient();
-                webPushClient.SendNotification(pushSubscription, payload, vapidDetails);
-            }
-            catch (Exception ex)
-            {
-
-            }
-
+            _webPushService.Broadcast(message);
         }
     }
 }

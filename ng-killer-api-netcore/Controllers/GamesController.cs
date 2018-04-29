@@ -7,6 +7,7 @@ using NgKillerApiCore.Models;
 using System;
 using NgKillerApiCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using WebPush;
 
 namespace NgKillerApiCore.Controllers
 {
@@ -16,13 +17,17 @@ namespace NgKillerApiCore.Controllers
     [Route("api/[controller]")]
     public class GamesController : ApiController<Game, long, KillerContext, RequestHub>
     {
+        private WebPushService _webPushService;
+
         /// <summary>
         /// Contr�leur des parties - Constructeur
         /// </summary>
         /// <param name="context"></param>
         /// <param name="hubContext"></param>
-        public GamesController(KillerContext context, IHubContext<RequestHub> hubContext) : base(context, hubContext)
+        /// <param name="webPushService"></param>
+        public GamesController(KillerContext context, IHubContext<RequestHub> hubContext, WebPushService webPushService) : base(context, hubContext)
         {
+            _webPushService = webPushService;
             Includes.Add(g => g.Agents);
         }
 
@@ -127,6 +132,10 @@ namespace NgKillerApiCore.Controllers
                 GameId = game.Id,
                 Type = Constantes.REQUEST_TYPE_GAME_STATUS
             });
+
+            foreach(var agent in game.Agents){
+                _webPushService.SendPushNotification(agent.Id,Constantes.ACTTION_TYPE_GAME_STARTED);
+            }
             return game;
         }
 

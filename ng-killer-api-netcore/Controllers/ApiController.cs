@@ -143,5 +143,6 @@ namespace NgKillerApiCore.Controllers
         {
             this._hubContext.Clients.Group(room).SendAsync(method, data);
         }
+        
     }
 }

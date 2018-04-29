@@ -26,24 +26,6 @@ namespace NgKillerApiCore.Controllers
             _context = context;
             _configuration = configuration;
         }
-        [HttpPost, ActionName("Send")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(int id, PayloadVm payload)
-        {
-            //var payload = Request.Form["payload"];
-            var device = await _context.Devices.SingleOrDefaultAsync(m => m.Id == id);
-
-            string vapidPublicKey = _configuration.GetSection("VapidKeys")["PublicKey"];
-            string vapidPrivateKey = _configuration.GetSection("VapidKeys")["PrivateKey"];
-
-            var pushSubscription = new PushSubscription(device.PushEndpoint, device.PushP256DH, device.PushAuth);
-            var vapidDetails = new VapidDetails("mailto:example@example.com", vapidPublicKey, vapidPrivateKey);
-
-            var webPushClient = new WebPushClient();
-            webPushClient.SendNotification(pushSubscription, payload.Payload, vapidDetails);
-
-            return View();
-        }
 
         public IActionResult GenerateKeys()
         {

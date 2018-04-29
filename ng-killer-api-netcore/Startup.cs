@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using NgKillerApiCore.Models;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NgKillerApiCore.Hubs;
+using WebPush;
 
 namespace NgKillerApiCore
 {
@@ -44,10 +45,13 @@ namespace NgKillerApiCore
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
-            services.AddDbContext<KillerContext>(options =>
-                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), b=>b.MigrationsAssembly("NgKillerApiCore")));
-
+#if DEBUG
+            services.AddDbContext<KillerContext>(opt => opt.UseInMemoryDatabase("Killer"));
+#endif
+#if !DEBUG
+             services.AddDbContext<KillerContext>(options =>
+                  options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), b=>b.MigrationsAssembly("NgKillerApiCore")));
+#endif
             services.AddSignalR();
             services.AddMvc().AddJsonOptions(options =>
             {
@@ -63,6 +67,9 @@ namespace NgKillerApiCore
             corsBuilder.AllowAnyMethod();
             corsBuilder.AllowAnyOrigin();
             corsBuilder.AllowCredentials();
+
+            services.AddScoped<WebPushClient, WebPushClient>();
+            services.AddScoped<WebPushService, WebPushService>();
 
             services.AddCors(options =>
             {
