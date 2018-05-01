@@ -24,19 +24,13 @@ namespace NgKillerApiCore.DAL
             context.Games.Add(game);
             context.SaveChanges();
 
-            context.Agents.Add(new Agent {  Name = "Un petit agent", Status = defaultAgentStatus, GameId = game.Id });
-            context.Agents.Add(new Agent {  Name = "Un petit agent 2", Status = defaultAgentStatus, GameId = game.Id });
-            context.Agents.Add(new Agent {  Name = "Un petit agent 3", Status = defaultAgentStatus, GameId = game.Id });
-            context.Agents.Add(new Agent {  Name = "Un petit agent 4", Status = defaultAgentStatus, GameId = game.Id });
-            context.Agents.Add(new Agent {  Name = "Un petit agent 5", Status = defaultAgentStatus, GameId = game.Id });
-            context.Agents.Add(new Agent {  Name = "Un petit agent 6", Status = defaultAgentStatus, GameId = game.Id });
+            for (int i = 1; i <= 20; i++)
+            {
+                context.Agents.Add(new Agent { Name = "Agent " + i, Status = defaultAgentStatus, GameId = game.Id });
 
-            context.Missions.Add(new Mission { Title = "Une petite mission", GameId = game.Id });
-            context.Missions.Add(new Mission { Title = "Une petite mission 2", GameId = game.Id });
-            context.Missions.Add(new Mission { Title = "Une petite mission 3", GameId = game.Id });
-            context.Missions.Add(new Mission { Title = "Une petite mission 4", GameId = game.Id });
-            context.Missions.Add(new Mission { Title = "Une petite mission 5", GameId = game.Id });
-            context.Missions.Add(new Mission { Title = "Une petite mission 6", GameId = game.Id });
+                context.Missions.Add(new Mission { Title = "Une petite mission " + i, GameId = game.Id });
+            }
+
             context.SaveChanges();
         }
     }

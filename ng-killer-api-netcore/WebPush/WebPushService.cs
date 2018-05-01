@@ -52,8 +52,11 @@ namespace WebPush
                     _webPushClient.SendNotification(pushSubscription, payload, vapidDetails);
                 }
                 catch(Exception ex){
-                    Console.WriteLine(ex.Message);
+                    _logger.LogError(ex.StackTrace, ex);
                 }
+            }
+            else{
+                _logger.LogError("no device for player " + agentId);
             }
         }
 
